@@ -23,29 +23,8 @@ where
 ///    Member { a: u64, b: u64 },
 /// }
 pub trait ComponentData: Clone  {
-    type K: ComponentKind; 
-    fn kind(&self) -> Self::K;
-}
-
-/// Represents the component interface.
-pub trait ComponentInterface {
-    type Id: ComponentId;
-    type Data: ComponentData;
-
-     
-    fn id(&self) -> Self::Id;
-    fn data(&self) -> &Self::Data;
-
-    fn kind(&self) -> <Self::Data as ComponentData>::Kind {
-        self.data().kind()
-    }
-
-    fn key(&self) -> ComponentKey<Self::Id, <Self::Data as ComponentData>::Kind> {
-        ComponentKey {
-            id: self.id(),
-            kind: self.kind(),
-        }
-    }
+    type Kind: ComponentKind; 
+    fn kind(&self) -> Self::Kind;
 }
 
 /// A component in the model
@@ -58,16 +37,24 @@ where
     pub data: D,
 }
 
-impl<I, D> ComponentInterface for Component<I, D> 
+impl<I, D> Component<I, D>
 where 
     I: ComponentId, 
-    D: ComponentData, 
+    D: ComponentData,
 {
-    type Id = I;
-    type Data = D;
+    pub fn id(&self) -> I { self.id }
+    pub fn data(&self) -> &D { &self.data }
+    
+    pub fn kind(&self) -> D::Kind {
+        self.data.kind()
+    }
 
-    fn id(&self) -> Self::Id { self.id }
-    fn data(&self) -> &Self::Data { &self.data }
+    pub fn key(&self) -> ComponentKey<I, D::Kind> {
+        ComponentKey {
+            id: self.id,
+            kind: self.kind(),
+        }
+    }
 }
 
   
