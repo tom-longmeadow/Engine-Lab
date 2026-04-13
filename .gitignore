@@ -1,0 +1,30 @@
+# --- Rust Specific ---
+# The build directory where compiled binaries and libraries go
+/target/
+
+# --- IDEs / Editors ---
+# VS Code
+.vscode/
+# IntelliJ / RustRover / PyCharm
+.idea/
+*.iml
+# Vim / Emacs
+*~
+*.swp
+
+# --- Environment & Secrets ---
+# For local environment variables
+.env
+.env.*
+
+# --- OS Specific ---
+# macOS
+.DS_Store
+# Windows
+Thumbs.db
+
+# --- Locks ---
+# Usually, you DO want Cargo.lock in your repo for a project/web-app 
+# so others have the exact same dependency versions. 
+# If this were a library meant for others to consume, you might ignore it.
+# Cargo.lock
