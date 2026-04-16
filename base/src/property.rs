@@ -1,6 +1,4 @@
-pub mod prelude {
-    pub use super::Property;
-}
+
 
 #[derive(Debug, PartialEq)]
 pub enum PropertyError {

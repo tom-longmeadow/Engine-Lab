@@ -1,20 +1,15 @@
+// 1. Declare the sub-modules (files/folders inside src/model/)
 pub mod component;
 pub mod registry;
 pub mod error;
 
+// 3. Handle feature-gated modules
 #[cfg(feature = "testing")]
 pub mod test_model;
- 
+
 pub use component::*;
 pub use registry::*;
 pub use error::*;
-
-pub mod prelude {
-    pub use super::component::*;
-    pub use super::registry::*;
-    pub use super::error::*;
-    pub use super::Model;
-}
 
 
 pub struct Model<I, D, R> 
