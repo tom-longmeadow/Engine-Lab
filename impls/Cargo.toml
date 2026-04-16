@@ -1,0 +1,12 @@
+[package]
+name = "impls"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+base = { path = "../base" }
+derive_more = { workspace = true, features = ["from", "into", "display", "as_ref"] }
+
+[dev-dependencies]
+base = { path = "../base", features = ["testing"] }
+

@@ -1,8 +1,9 @@
 [workspace]
 members = [
     "base",
+    "impls",
 ]
 resolver = "2"
 
 [workspace.dependencies]
-#uuid = { version = "1.10.0", features = ["v4"] } 
+derive_more = { version = "=1.0.0", features = ["from", "into", "display", "as_ref"] }

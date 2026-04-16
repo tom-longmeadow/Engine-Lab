@@ -1,11 +1,33 @@
-//use uuid::Uuid;
-/// the type of ID to use, u64, UUID.
-pub trait ComponentId: Copy + Eq + std::hash::Hash + std::fmt::Debug {}
+ 
+pub trait ComponentId: Copy + Eq + std::hash::Hash + std::fmt::Debug {
+    /// Returns the "null" or "free" version of this ID.
+    /// UUID nil or for u64, 0.
+    fn invalid() -> Self; 
 
-impl ComponentId for u32 {}
-impl ComponentId for u64 {}
-impl ComponentId for u128 {}
-//impl ComponentId for Uuid {}
+    /// Checks if this ID is the "null" state.
+    fn is_invalid(&self) -> bool {
+        *self == Self::invalid()
+    }
+
+    fn to_option(self) -> Option<Self> {
+        if self.is_invalid() { None } else { Some(self) }
+    }
+}
+
+
+macro_rules! impl_component_id_primitive {
+    ($($t:ty),*) => {
+        $(
+            impl ComponentId for $t {
+                fn invalid() -> Self { 0 }
+            }
+        )*
+    };
+}
+
+// Create the ability to use unsigned integers as an Id
+impl_component_id_primitive!(u8, u16, u32, u64, u128, usize);
+
 
 /// Should be a component type enum.  For instance enum StructuralType {Joint, Member}
 pub trait ComponentKind: Copy + Eq + std::hash::Hash + std::fmt::Debug {}

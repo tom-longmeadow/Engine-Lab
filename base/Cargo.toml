@@ -3,5 +3,8 @@ name = "base"
 version = "0.1.0"
 edition = "2024"
 
+[features]
+testing = []
+
 [dependencies]
-#uuid = { workspace = true }
+
