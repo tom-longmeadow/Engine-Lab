@@ -62,7 +62,9 @@ macro_rules! __define_test_mocks {
             Kind1, 
             Kind2, 
         }
-        impl ComponentKind for MockKind {}
+        impl ComponentKind for MockKind {
+            type Id = MockId;
+        }
 
         #[derive(Debug, Clone, PartialEq)]
         pub enum MockData { // Added pub
@@ -83,14 +85,16 @@ macro_rules! __define_test_mocks {
     };
 }
 
-#[macro_export]
+#[macro_export] 
 macro_rules! test_registry {
     ($registry_type:ident) => {
         #[cfg(test)]
         mod registry_tests {
             
             $crate::__define_test_mocks!(); 
-            type TestRegistry = $registry_type<MockId, MockData>;
+            
+            
+            type TestRegistry = $registry_type<MockData>;
 
               
             #[test]
@@ -215,8 +219,6 @@ macro_rules! test_model {
     ($registry_type:ident) => {
         #[cfg(test)]
         mod model_tests {
-            
-
             $crate::__define_test_mocks!(); 
 
              // 3. Define the Test Config
@@ -224,20 +226,19 @@ macro_rules! test_model {
             impl ModelConfig for TestConfig {
                 type Id = MockId;
                 type Data = MockData;
-                type Registry = $registry_type<MockId, MockData>;
+                // FIX: Pass only MockData to the registry
+                type Registry = $registry_type<MockData>; 
                 type Category = MockUnitCategory;
                 type Setting = MockUnitSetting;
                 
-              
                 type Lang = MockLang;
                 type Display = MockDisplayText;
-                //type Translator = MockTranslator;
             }
  
-
             // Helper to initialize the model
             fn create_model() -> Model<TestConfig> {
-                let registry = <$registry_type<MockId, MockData>>::default();
+                // Use the type defined in the config for consistency
+                let registry = <TestConfig as ModelConfig>::Registry::default();
                 let settings = UnitSettings::new(MockUnitSetting, MockUnitSetting); 
                 Model::new(registry, settings)
             }
@@ -258,7 +259,7 @@ macro_rules! test_model {
                 assert!(matches!(err, ModelError::AlreadyExists(..)));
 
                 // --- TEST GET & UPDATE ---
-                let fetched = model.get(&id, MockKind::Kind1).unwrap();
+                let fetched = model.get(id, MockKind::Kind1).unwrap();
                 if let MockData::Kind1 { state } = fetched {
                     assert_eq!(*state, 10.0);
                 } else {
@@ -266,27 +267,27 @@ macro_rules! test_model {
                 }
 
                 let new_data = MockData::Kind1 { state: 1.0 };
-                assert!(model.update(&id, new_data).is_ok());
+                assert!(model.update(id, new_data).is_ok());
                 
-                let updated = model.get(&id, MockKind::Kind1).unwrap();
+                let updated = model.get(id, MockKind::Kind1).unwrap();
                 if let MockData::Kind1 { state } = updated {
                     assert_eq!(*state, 1.0);
                 }
 
                 // --- TEST DELETE ---
-                let removed = model.delete(&id, MockKind::Kind1).unwrap();
+                let removed = model.delete(id, MockKind::Kind1).unwrap();
                 if let MockData::Kind1 { state } = removed {
                     assert_eq!(state, 1.0);
                 }
                 
-                assert!(model.get(&id, MockKind::Kind1).is_err());
+                assert!(model.get(id, MockKind::Kind1).is_err());
             }
 
             #[test]
             fn test_error_on_missing() {
                 let mut model = create_model();
                 let id = MockId(99);
-                let res = model.update(&id, MockData::Kind1 { state: 0.0 });
+                let res = model.update(id, MockData::Kind1 { state: 0.0 });
                 assert!(matches!(res, Err(ModelError::NotFound(..))));
             }
 
@@ -296,7 +297,7 @@ macro_rules! test_model {
                 let id = MockId(8);
                 model.insert(id, MockData::Kind1 { state: 10.0 }).unwrap();
 
-                let res = model.get(&id, MockKind::Kind2);
+                let res = model.get(id, MockKind::Kind2);
                 assert!(matches!(res, Err(ModelError::NotFound(..))));
             }
 
@@ -306,12 +307,12 @@ macro_rules! test_model {
                 let id = MockId(8);
                 model.insert(id, MockData::Kind1 { state: 10.0 }).unwrap();
 
-                let mut cloned_data = model.get_clone(&id, MockKind::Kind1).unwrap();
+                let mut cloned_data = model.get_clone(id, MockKind::Kind1).unwrap();
                 if let MockData::Kind1 { state } = &mut cloned_data {
                     *state = 99.0;
                 }
 
-                if let Ok(MockData::Kind1 { state }) = model.get(&id, MockKind::Kind1) {
+                if let Ok(MockData::Kind1 { state }) = model.get(id, MockKind::Kind1) {
                     assert_eq!(*state, 10.0);
                 }
             }
