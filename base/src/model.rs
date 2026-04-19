@@ -13,7 +13,7 @@ pub use error::*;
 
 use crate::{
     language::{DisplayText, Language}, 
-    unit::{UnitCategory, UnitSetting, UnitSettings}
+    unit::{UnitCategory, UnitSettings, UnitSystem}
 };
 
  
@@ -22,17 +22,19 @@ pub trait ModelConfig: 'static {
     type Id: ComponentId;
     type Data: ComponentData;
     
-    // Storage Type (Linked to Data Types)
+    // Storage Type
     type Registry: ComponentRegistry<Id = Self::Id, Data = Self::Data>;
 
     // Unit Types
-    type Category: UnitCategory;
-    type Setting: UnitSetting<Self::Category>;
-
+    /// The Enum "ID" (e.g., Length, Force, Pressure)
+    type UnitCategory: UnitCategory;
+    
+    /// The Struct "Storage" that holds the actual SimpleUnits/CompoundUnits
+    type UnitSetting: UnitSettings<Self::UnitCategory>;
+     
     // Languages
     type Display: DisplayText; 
     type Lang: Language;
-    //type Translator: TranslationProvider<Self::Lang>;
 }
  
 pub struct Model<C> 
@@ -40,7 +42,7 @@ where
     C: ModelConfig
 {
     pub registry: C::Registry, 
-    pub settings: UnitSettings<C>,
+    pub settings: UnitSystem<C>,
 }
 
 impl<C> Model<C>  
@@ -50,7 +52,7 @@ where
     <C::Data as ComponentData>::Kind: ComponentKind<Id = C::Id>, // Link Id types
 {
 
-    pub fn new(registry: C::Registry, settings: UnitSettings<C>) -> Self {
+    pub fn new(registry: C::Registry, settings: UnitSystem<C>) -> Self {
         Self { registry, settings }
     }
 

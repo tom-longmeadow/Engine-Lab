@@ -3,7 +3,7 @@
 macro_rules! base_unit_macro {
     ($name:ident { 
         $default_variant:ident = ($default_factor:expr, $default_symbol:expr), 
-        $($variant:ident = ($factor:expr, $symbol:expr)),* $(,)? 
+        $($variant:ident = ($factor:expr, $symbol:expr)),* $(,)?
     }) => {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
         pub enum $name {
@@ -13,9 +13,11 @@ macro_rules! base_unit_macro {
         }
 
         impl Unit for $name {
-            // This now matches the trait definition
+            // Self is the Enum type (e.g., LengthUnit)
+            const DEFAULT: Self = Self::$default_variant;
             const COUNT: usize = 1 $(+ { let _ = stringify!($variant); 1 })*;
 
+           
             fn symbol(&self) -> &'static str {
                 match self {
                     Self::$default_variant => $default_symbol,
@@ -27,11 +29,11 @@ macro_rules! base_unit_macro {
                 vec![Self::$default_variant, $(Self::$variant),*]
             }
 
-            fn to_si(&self, val: f64, power: i8) -> f64 {
+            fn to_base(&self, val: f64, power: i8) -> f64 {
                 val * self.conversion_factor().powi(power as i32)
             }
 
-            fn from_si(&self, si_val: f64, power: i8) -> f64 {
+            fn from_base(&self, si_val: f64, power: i8) -> f64 {
                 si_val / self.conversion_factor().powi(power as i32)
             }
         }
@@ -68,6 +70,7 @@ macro_rules! temperature_unit_macro {
         }
 
         impl Unit for $name {
+            const DEFAULT: Self = Self::$default_variant;
             const COUNT: usize = 1 $(+ { let _ = stringify!($variant); 1 })*;
 
             fn symbol(&self) -> &'static str {
@@ -81,7 +84,7 @@ macro_rules! temperature_unit_macro {
                 vec![Self::$default_variant, $(Self::$variant),*]
             }
      
-            fn to_si(&self, val: f64, power: i8) -> f64 {
+            fn to_base(&self, val: f64, power: i8) -> f64 {
                 let (factor, offset) = self.values();
                 if power == 0 {
                     // It's a Temperature Delta (Difference)
@@ -92,7 +95,7 @@ macro_rules! temperature_unit_macro {
                 }
             }
 
-            fn from_si(&self, si_val: f64, power: i8) -> f64 {
+            fn from_base(&self, si_val: f64, power: i8) -> f64 {
                 let (factor, offset) = self.values();
                 if power == 0 {
                     si_val / factor
@@ -108,6 +111,43 @@ macro_rules! temperature_unit_macro {
                 match self {
                     Self::$default_variant => ($default_factor, $default_offset),
                     $(Self::$variant => ($factor, $offset)),*
+                }
+            }
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! define_unit_system {
+    ($category_enum:ident, $settings_struct:ident {
+        $($field:ident : $variant:ident : $kind:ident),* $(,)?
+    }) => {
+        // 1. The ID Enum (e.g., ExampleUnitCategory)
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+        pub enum $category_enum {
+            $($variant),*
+        }
+
+        impl $crate::unit::UnitCategory for $category_enum {}
+
+        // 2. The Storage Struct (e.g., ExampleUnitSetting)
+        #[derive(Debug, Clone, Copy, PartialEq)]
+        pub struct $settings_struct {
+            // Appends "Unit" to the Kind to get the type name (Simple -> SimpleUnit)
+            $(pub $field: $crate::unit::$kind),*
+        }
+
+        // 3. The Bridge Trait
+        impl $crate::unit::UnitSettings<$category_enum> for $settings_struct {
+            fn get_kind(&self, category: $category_enum) -> $crate::unit::UnitKind {
+                match category {
+                    $(
+                        $category_enum::$variant => {
+                            // Logic: UnitKind::Simple(self.length)
+                            // Note: $kind here must match the UnitKind variant names
+                            $crate::unit::UnitKind::$kind(self.$field)
+                        }
+                    ),*
                 }
             }
         }

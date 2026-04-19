@@ -9,13 +9,13 @@ pub use error::*;
 pub use propertied::*;
 pub use property_node::*;
 
-use crate::{model::ModelConfig}; 
+use crate::{model::ModelConfig, unit::UnitSystem}; 
 
 
 pub struct Property<C: ModelConfig> {
     pub label: C::Display,
-    pub category: Option<C::Category>, 
-    pub extractor: fn(&dyn Propertied<C>) -> PropertyValue,
+    pub category: Option<C::UnitCategory>,  
+    pub extractor: fn(&dyn Propertied<C>, &UnitSystem<C>) -> PropertyValue,
 }
 
 // pub struct Property<K: UnitCategory> {

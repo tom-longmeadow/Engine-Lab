@@ -1,5 +1,4 @@
-use crate::{model::ModelConfig, property::PropertyNode, };
-
+use super::{ModelConfig, PropertyNode};
  
 pub trait Propertied<C: ModelConfig> {
     /// Returns the template for this type of object.

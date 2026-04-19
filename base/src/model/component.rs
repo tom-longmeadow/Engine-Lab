@@ -1,4 +1,5 @@
- 
+ use crate::{component_id_primitive_macro};
+
 pub trait ComponentId: Copy + Eq + std::hash::Hash + std::fmt::Debug {
     /// Returns the "null" or "free" version of this ID.
     /// UUID nil or for u64, 0.
@@ -14,19 +15,8 @@ pub trait ComponentId: Copy + Eq + std::hash::Hash + std::fmt::Debug {
     }
 }
 
-
-macro_rules! impl_component_id_primitive {
-    ($($t:ty),*) => {
-        $(
-            impl ComponentId for $t {
-                fn invalid() -> Self { 0 }
-            }
-        )*
-    };
-}
-
 // Create the ability to use unsigned integers as an Id
-impl_component_id_primitive!(u8, u16, u32, u64, u128, usize);
+component_id_primitive_macro!(u8, u16, u32, u64, u128, usize);
 
 
 /// Should be a component type enum.  For instance enum StructuralType {Joint, Member}

@@ -1,5 +1,5 @@
-use crate::{ model::ModelConfig, property::Property};
 
+use super::{ModelConfig, Property};
 
 pub enum PropertyNode<C: ModelConfig> {
     Leaf(Property<C>),

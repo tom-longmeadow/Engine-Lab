@@ -1,4 +1,4 @@
-pub mod display_text;
+
 
 use base::prelude::Language;
 

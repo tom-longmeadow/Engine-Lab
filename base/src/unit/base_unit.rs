@@ -1,10 +1,10 @@
 
 
-use crate::enum_macro;
+use crate::enum_index_macro;
 use crate::base_unit_macro;
 use crate::temperature_unit_macro;
 
-enum_macro!(BaseUnit {
+enum_index_macro!(BaseUnit {
     Length, 
     Mass,    
     Time,    
@@ -18,11 +18,12 @@ enum_macro!(BaseUnit {
 pub trait Unit: Sized + Default + Copy + PartialEq {
      
     const COUNT: usize;
+    const DEFAULT: Self;
 
     fn symbol(&self) -> &'static str;
     fn all_variants() -> Vec<Self>;
-    fn to_si(&self, val: f64, power: i8) -> f64;
-    fn from_si(&self, val: f64, power: i8) -> f64;
+    fn to_base(&self, val: f64, power: i8) -> f64;
+    fn from_base(&self, val: f64, power: i8) -> f64;
 } 
 
 

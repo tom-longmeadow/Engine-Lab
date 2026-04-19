@@ -1,3 +1,5 @@
+pub use derive_more; 
+
 #[macro_use]
 pub mod macros;  
 
@@ -12,11 +14,9 @@ pub mod prelude {
 
     pub use crate::unit::{
         base_unit::*,
-        category::*,
-        dimensions::*,
+        category::*, 
         kind::*,
-        UnitSetting,
-        UnitSettings,
+        UnitSystem,
     };
     
     pub use crate::property::{
