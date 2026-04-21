@@ -1,17 +1,16 @@
 
-
 use crate::enum_index_macro;
 use crate::base_unit_macro;
-use crate::temperature_unit_macro;
+use crate::temperature_unit_macro; 
 
 enum_index_macro!(BaseUnit {
     Length, 
     Mass,    
     Time,    
-    Temperature,
     Current,
-    Amount,
+    Molar,
     LuminousIntensity,
+    Temperature,
 });
 
 // Trait for unit.
@@ -19,11 +18,12 @@ pub trait Unit: Sized + Default + Copy + PartialEq {
      
     const COUNT: usize;
     const DEFAULT: Self;
-
+  
     fn symbol(&self) -> &'static str;
     fn all_variants() -> Vec<Self>;
     fn to_base(&self, val: f64, power: i8) -> f64;
     fn from_base(&self, val: f64, power: i8) -> f64;
+     
 } 
 
 
@@ -71,17 +71,6 @@ base_unit_macro!(TimeUnit {
     Week = (604800.0, "wk"),
 });
 
-base_unit_macro!(ForceUnit {
-    Newton = (1.0, "N"),
-    Kilonewton = (1000.0, "kN"),
-    Meganewton = (1_000_000.0, "MN"),
-    Dyn = (1e-5, "dyn"),
-    PoundForce = (4.4482216152605, "lbf"),
-    OunceForce = (0.27801385095378, "ozf"),
-    Kip = (4448.2216152605, "kip"),
-    KilogramForce = (9.80665, "kgf"),
-});
-
 base_unit_macro!(CurrentUnit {
     Ampere = (1.0, "A"),
     Milliampere = (0.001, "mA"),
@@ -89,7 +78,7 @@ base_unit_macro!(CurrentUnit {
     Kiloampere = (1000.0, "kA"),
 });
 
-base_unit_macro!(AmountUnit {
+base_unit_macro!(MolarUnit {
     Mole = (1.0, "mol"),
     Millimole = (0.001, "mmol"),
     Kilomole = (1000.0, "kmol"),

@@ -2,8 +2,8 @@ use crate::unit::{UnitCategory, UnitKind};
 
 
 
-// Need to track the current unit for each category
+ /// Maps a UnitCategory to the Units to use for the category
 pub trait UnitSettings<C: UnitCategory>: Copy + Clone + PartialEq {
-    /// Maps a Category ID to its actual physical definition and selection
-    fn get_kind(&self, category: C) -> UnitKind;
+    fn default() -> Self;
+    fn get(&self, category: C) -> UnitKind;
 }

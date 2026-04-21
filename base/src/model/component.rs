@@ -1,4 +1,4 @@
- use crate::{component_id_primitive_macro};
+ use crate::{component_id_macro, component_id_primitive_macro};
 
 pub trait ComponentId: Copy + Eq + std::hash::Hash + std::fmt::Debug {
     /// Returns the "null" or "free" version of this ID.
@@ -17,6 +17,12 @@ pub trait ComponentId: Copy + Eq + std::hash::Hash + std::fmt::Debug {
 
 // Create the ability to use unsigned integers as an Id
 component_id_primitive_macro!(u8, u16, u32, u64, u128, usize);
+
+// Making a component ID of type name = IDu, primitive type = usize
+component_id_macro!(IDu, usize);
+
+// Making a component ID of type name = ID64, primitive type = u64
+component_id_macro!(ID64, u64);
 
 
 /// Should be a component type enum.  For instance enum StructuralType {Joint, Member}

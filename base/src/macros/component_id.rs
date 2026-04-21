@@ -15,12 +15,7 @@ macro_rules! component_id_primitive_macro {
 macro_rules! component_id_macro {
     ($name:ident, $type:ty) => {
 
-        
-        //use $crate::model::component::{ComponentId, ComponentData, ComponentKind};
-        // use $crate::model::{Model, ModelError, ModelConfig};
-        // use $crate::unit::{UnitSettings, UnitCategory, UnitKind, SimpleUnit, CompoundUnit, LengthUnit};
-        // use $crate::language::{Language, DisplayText};
- 
+         
         #[repr(transparent)]
         #[derive(
             ::derive_more::From, 

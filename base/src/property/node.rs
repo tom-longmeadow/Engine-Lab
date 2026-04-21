@@ -1,7 +1,7 @@
 
-use super::{ModelConfig, Property};
+use super::{PropertyConfig, Property};
 
-pub enum PropertyNode<C: ModelConfig> {
+pub enum PropertyNode<C: PropertyConfig> {
     Leaf(Property<C>),
     Group {
         name: C::Display,

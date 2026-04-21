@@ -1,4 +1,4 @@
-// 1. Declare the sub-modules (files/folders inside src/model/)
+ 
 pub mod component;
 pub mod registry;
 pub mod error;
@@ -11,8 +11,7 @@ pub use component::*;
 pub use registry::*;
 pub use error::*;
 
-use crate::{
-    language::{DisplayText, Language}, 
+use crate::{ 
     unit::{UnitCategory, UnitSettings, UnitSystem}
 };
 
@@ -31,10 +30,7 @@ pub trait ModelConfig: 'static {
     
     /// The Struct "Storage" that holds the actual SimpleUnits/CompoundUnits
     type UnitSetting: UnitSettings<Self::UnitCategory>;
-     
-    // Languages
-    type Display: DisplayText; 
-    type Lang: Language;
+      
 }
  
 pub struct Model<C> 

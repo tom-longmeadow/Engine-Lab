@@ -16,14 +16,18 @@ pub mod prelude {
         base_unit::*,
         category::*, 
         kind::*,
+        simple::*,
+        compound::*,
+        settings::*,
         UnitSystem,
     };
     
     pub use crate::property::{
         propertied::*,
-        property_node::*,
+        node::*,
         error::*,
         value::*,
+        PropertyConfig,
         Property,
     };
 
@@ -36,6 +40,13 @@ pub mod prelude {
     };
     
     // Often useful to include the macros in the prelude
-    pub use crate::{enum_macro, base_unit_macro};
+    pub use crate::{
+        enum_macro, 
+        enum_index_macro,
+        base_unit_macro,
+        temperature_unit_macro,
+        component_id_macro,
+        component_id_primitive_macro
+    };
 }
 

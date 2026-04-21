@@ -1,88 +1,81 @@
-use base::{define_unit_system, prelude::*};
-use crate::{    
-    language::{display_text::CommonDisplayText, us::UnitedStatesLanguage}, 
-    model::{component::id::ID64, 
-    registry_hashmap::HashMapRegistry
-}}; 
+use base::prelude::*;
 
-// 1. Define the Unit System
-// This creates two enums under the hood.  
-define_unit_system!(ExampleUnitCategory, ExampleUnitSetting {
-    length:       Length:      Simple,
-    length_small: LengthSmall: Simple,
-    area:         Area:        Simple,
-    force:        Force:       Compound,
-    custom:       Custom:      Compound,
-});
-// the macro above will make 
-// // 1. The ID Enum (Used to identify WHICH category we are talking about)
-// #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-// pub enum ExampleUnitCategory {
-//     Length,
-//     LengthSmall,
-//     Area,
-//     Force,
-//     Custom,
-// }
+use crate::model::registry_hashmap::HashMapRegistry;
+ 
 
-// // Implements your marker trait
-// impl crate::unit::UnitCategory for ExampleUnitCategory {}
 
-// // 2. The Storage Struct (Used to store the actual SELECTION for each category)
-// #[derive(Debug, Clone, Copy, PartialEq)]
-// pub struct ExampleUnitSetting {
-//     pub length: crate::unit::SimpleUnit,
-//     pub length_small: crate::unit::SimpleUnit,
-//     pub area: crate::unit::SimpleUnit,
-//     pub force: crate::unit::CompoundUnit,
-//     pub custom: crate::unit::CompoundUnit,
-// }
-
-// // 3. The Mapping Logic (The bridge between ID and Data)
-// impl crate::unit::UnitCategoryKind<ExampleUnitCategory> for ExampleUnitSetting {
-//     fn get_kind(&self, category: ExampleUnitCategory) -> crate::unit::UnitKind {
-//         match category {
-//             ExampleUnitCategory::Length => {
-//                 crate::unit::UnitKind::SimpleUnit(self.length)
-//             }
-//             ExampleUnitCategory::LengthSmall => {
-//                 crate::unit::UnitKind::SimpleUnit(self.length_small)
-//             }
-//             ExampleUnitCategory::Area => {
-//                 crate::unit::UnitKind::SimpleUnit(self.area)
-//             }
-//             ExampleUnitCategory::Force => {
-//                 crate::unit::UnitKind::CompoundUnit(self.force)
-//             }
-//             ExampleUnitCategory::Custom => {
-//                 crate::unit::UnitKind::CompoundUnit(self.custom)
-//             }
-//         }
-//     }
-// }
-
-// 2. Add a standard initialization of the unit setting for this project
-impl ExampleUnitSetting {
-    pub const fn new() -> Self {
-        Self {
-            length: SimpleUnit::length(),
-            
-            length_small: SimpleUnit::Length { 
-                unit: LengthUnit::Millimeter, 
-                exponent: 1 
-            },
-            
-            area: SimpleUnit::area(),
-            force: CompoundUnit::force(),
-            custom: CompoundUnit::new(),
-        }
-    }
+/// UNITS
+/// Define the unit categories.  
+/// The model may need small and large units of the same base type.  For instance
+/// you may have large components measured in meters but small components measured
+/// in millimeters.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum ExampleUnitCategory {
+    Length,
+    LengthSmall,
+    Area,
+    Force,
+    DynamicViscosity,
+    Temperature,
 }
 
+/// Implement the UnitCategory trait to mark this as a unit category
+impl UnitCategory for ExampleUnitCategory {}
+
+/// Define the kind (type) of unit for each categories. 
+/// SimpleUnit contains a base unit and exponent for a unit, like mm^2
+/// CompoundUnit contains SimpleUnits for each base unit, like kg*m/s^2
+/// TemperatureUnit is special and different than other units.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ExampleUnitSettings {
+    pub length: SimpleUnit,
+    pub length_small: SimpleUnit,
+    pub area: SimpleUnit,
+    pub force: CompoundUnit,
+    pub dynamic_viscosity: CompoundUnit,
+    pub temperature: TemperatureUnit
+}
+
+/// Map the unit category to a particular unit
+/// You can use helper functions for defaults, 
+/// or make the unit yourself.
+impl UnitSettings<ExampleUnitCategory> for ExampleUnitSettings {
+   
+    fn default() -> Self {
+        Self {
+            length: SimpleUnit::length_si(), // use the si default
+            length_small: SimpleUnit::length(LengthUnit::Millimeter, 1), // set to millimeter
+            area: SimpleUnit::area_si(),
+            force: CompoundUnit::force(),
+            
+            dynamic_viscosity: CompoundUnit::new()// Dynamic Viscosity: kg / (m · s)
+                .with_mass(MassUnit::Kilogram, 1)
+                .with_length(LengthUnit::Meter, -1)
+                .with_time(TimeUnit::Second, -1),
+            temperature: TemperatureUnit::Celsius,
+        }
+    }
+
+    // 2. Map the category to the specific field wrapped in UnitKind
+    fn get(&self, category: ExampleUnitCategory) -> UnitKind {
+        match category {
+            ExampleUnitCategory::Length      => UnitKind::Simple(self.length),
+            ExampleUnitCategory::LengthSmall => UnitKind::Simple(self.length_small),
+            ExampleUnitCategory::Area        => UnitKind::Simple(self.area),
+            ExampleUnitCategory::Force       => UnitKind::Compound(self.force),
+            ExampleUnitCategory::DynamicViscosity      => UnitKind::Compound(self.dynamic_viscosity),
+            ExampleUnitCategory::Temperature => UnitKind::Temperature(self.temperature),
+        }
+    }
+     
+}
+ 
 // COMPONENT ID
 // This is the ID to use for components. You can use unsigned integers, like usize or u64,
-// but for more type saftey use an ID type.  Some ID types are defined but you can define your own
-// with: component_id_macro!(ID64, u64);
+// but for more type saftey use an ID type.  Some ID types are defined but you can define your own.
+// We have defined ID64 as an u64, and have made a using statement above for it, but if you wanted a 
+// custom id you could do it with this macro
+component_id_macro!(MyName, u32);  
 
 /// COMPONENT KINDS
 /// The components in the model are of different kinds, or types
@@ -93,7 +86,7 @@ pub enum ExampleKind {
 }
 
 impl ComponentKind for ExampleKind {
-    type Id = ID64; // This tells the Registry/Model to expect ID64
+    type Id = ID64; // This tells the Registry/Model to expect ID64 as the ComponentId
 }
 
 // COMPONENT DATA
@@ -107,7 +100,7 @@ pub enum ExampleData {
         z: f64,
     },
     Line {
-        i_id: ID64, 
+        i_id: ID64, // make sure to use the Id defined in ExampleKind
         j_id: ID64, 
     },
 }
@@ -125,6 +118,7 @@ impl ComponentData for ExampleData {
 
 // COMPONENT REGISTRY
 // Components are stored in a registry
+// for this example we will use a HasMapResgistry alread defined.
 
 // CONFIG
 // This allows us to define all the generic types the model will use in one place
@@ -137,10 +131,10 @@ impl ModelConfig for ExampleConfig {
 
     // Use '=' to assign the concrete types
     type UnitCategory = ExampleUnitCategory;
-    type UnitSetting = ExampleUnitSetting; // This struct must implement UnitSetting trait
+    type UnitSetting = ExampleUnitSettings;  
  
-    type Display = CommonDisplayText;
-    type Lang = UnitedStatesLanguage;
+    // type Display = CommonDisplayText;
+    // type Lang = UnitedStatesLanguage;
 }
 
 // MODEL
@@ -154,8 +148,8 @@ fn example_main() {
     let registry = HashMapRegistry::<ExampleData>::default();
     
     // Create settings: File is standard SI, Display uses specific preferences
-    let file_settings = ExampleUnitSetting::new();
-    let mut display_settings = ExampleUnitSetting::new();
+    let file_settings = ExampleUnitSettings::default();
+    let mut display_settings = ExampleUnitSettings::default();
     
     // Customize the display setting: show large lengths in feet
     display_settings.length = SimpleUnit::Length { 
@@ -166,6 +160,5 @@ fn example_main() {
     let settings = UnitSystem::<ExampleConfig>::new(file_settings, display_settings);
     let mut model = Model::<ExampleConfig>::new(registry, settings);
 
-    // Now, any property using ExampleUnitCategory::Length will 
-    // automatically convert Meters (file) to Feet (display).
+     
 }
