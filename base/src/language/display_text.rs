@@ -1,12 +1,15 @@
-use base::prelude::{DisplayText, Language};
+ use super::language::Language;
 
+pub trait DisplayLanguage: 'static + Clone + Copy {
+    fn translate<L: Language>(&self, lang: L) -> String;
+    fn default_text(&self) -> &'static str;
+}
 
-/// An example of how to make a display text for the labels in your app
-/// so that labels are enums and translations can work
+ 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
-pub enum CommonDisplayText {
+pub enum DisplayText {
     #[default]
-    None,
+    EmptyString,
     Acceleration,
     Active,
     Add,
@@ -192,10 +195,10 @@ pub enum CommonDisplayText {
     Z,
 }
 
-impl DisplayText for CommonDisplayText {
-    fn default_text(&self) -> &'static str {
+impl DisplayText {
+    pub const fn default(&self) -> &'static str {
         match self {
-            Self::None => "",
+            Self::EmptyString => "",
             Self::Acceleration => "Acceleration",
             Self::Active => "Active",
             Self::Add => "Add",
@@ -381,12 +384,20 @@ impl DisplayText for CommonDisplayText {
             Self::Z => "Z",
         }
     }
+}
 
-    /// you do not need to translate every word and can return the 
-    /// default language instead.
+impl DisplayLanguage for DisplayText {
+
+    fn default_text(&self) -> &'static str { 
+        self.default()
+    }
+
     fn translate<L: Language>(&self, lang: L) -> String {
-        match lang.id() {
-            "fr-CA" | "fr" => match self {
+        // Here you switch on the locale code to look up French/Canadian mappings
+        match lang.locale_code() {
+            "fr-FR" => match self {
+                Self::EmptyString => "".to_string(),
+                Self::Acceleration => "Accélération".to_string(),
                 Self::Width => "Largeur".to_string(),
                 Self::Height => "Hauteur".to_string(),
                 Self::Length => "Longueur".to_string(),
@@ -398,12 +409,22 @@ impl DisplayText for CommonDisplayText {
                 Self::Temperature => "Température".to_string(),
                 Self::Settings => "Paramètres".to_string(),
                 Self::Properties => "Propriétés".to_string(),
-                _ => self.default_text().to_string(),
+                _ => self.default_text().to_string(), // Fallback to US English
+            },
+            "en-CA" => match self {
+                Self::EmptyString => "".to_string(),
+                // If it's a word that doesn't change, fall back to default
+                _ => self.default_text().to_string(), 
             },
             _ => self.default_text().to_string(),
         }
     }
+    
+   
+ 
 }
 
  
+ 
+
  

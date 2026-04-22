@@ -19,6 +19,7 @@ pub mod prelude {
         simple::*,
         compound::*,
         settings::*,
+        UnitConfig,
         UnitSystem,
     };
     

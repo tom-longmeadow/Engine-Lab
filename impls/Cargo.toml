@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 base = { path = "../base" }
-derive_more = { workspace = true, features = ["from", "into", "display", "as_ref"] }
+derive_more = { version = "1.0.0", features = ["full"] }
 
 [dev-dependencies]
 base = { path = "../base", features = ["testing"] }

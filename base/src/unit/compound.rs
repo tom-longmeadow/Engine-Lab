@@ -1,5 +1,9 @@
+ 
+use super::{
+    MolarUnit, BaseUnit, CurrentUnit, LengthUnit, LuminousIntensityUnit, 
+    MassUnit, SimpleUnit, TimeUnit, Unit
+};
 
-use crate::unit::{MolarUnit, BaseUnit, CurrentUnit, LengthUnit, LuminousIntensityUnit, MassUnit, SimpleUnit, TimeUnit, Unit};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct CompoundUnit {

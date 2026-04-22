@@ -15,17 +15,16 @@ macro_rules! component_id_primitive_macro {
 macro_rules! component_id_macro {
     ($name:ident, $type:ty) => {
 
-         
         #[repr(transparent)]
         #[derive(
             ::derive_more::From, 
             ::derive_more::Into, 
             ::derive_more::AsRef, 
             ::derive_more::Display,
+            ::derive_more::FromStr, // 👈 ADD THIS HERE
             Copy, Clone, Eq, PartialEq, Hash, Debug
         )]
         pub struct $name(pub $type);
-
 
         impl $name {
             pub fn new(val: $type) -> Option<Self> {

@@ -105,16 +105,66 @@ pub enum ExampleData {
     },
 }
 
-impl ComponentData for ExampleData {
-    type Kind = ExampleKind;
+// impl<C: ModelConfig> Propertied<C> for ExampleData {
+//     fn get_template() -> Vec<PropertyNode<C>> {
+//         // Return only the properties specific to Point or Line
+//         vec![/* property nodes for x, y, z or i_id, j_id */]
+//     }
 
-    fn kind(&self) -> Self::Kind {
-        match self {
-            Self::Point { .. } => ExampleKind::Point,
-            Self::Line { .. } => ExampleKind::Line,
-        }
-    }
-}
+//     fn get_value(&self, prop: &Property<C>) -> PropertyValue {
+//         // Match on prop and return self.x, self.y, etc.
+//     }
+
+//     fn set_value(&mut self, prop: &Property<C>, value: PropertyValue) -> Result<(), PropertyError> {
+//         // Update self.x, self.y, etc.
+//         Ok(())
+//     }
+// }
+
+// impl ComponentData for ExampleData {
+//     type Kind = ExampleKind;
+
+//     fn kind(&self) -> Self::Kind {
+//         match self {
+//             Self::Point { .. } => ExampleKind::Point,
+//             Self::Line { .. } => ExampleKind::Line,
+//         }
+//     }
+// }
+
+// impl<C, D> Propertied<C> for Component<D>
+// where
+//     C: ModelConfig,
+//     D: ComponentData + Propertied<C>,
+// {
+//     fn get_template() -> Vec<PropertyNode<C>> {
+//         // 1. Create the template for the ID property
+//         let mut template = vec![ PropertyNode::new_id_property() ];
+        
+//         // 2. Append all the properties from the inner data
+//         template.extend(D::get_template());
+        
+//         template
+//     }
+
+//     fn get_value(&self, prop: &Property<C>) -> PropertyValue {
+//         if prop.is_id_property() {
+//             // Intercept and return the component's actual ID
+//             return PropertyValue::Id(self.id);
+//         }
+//         // Otherwise, delegate to the inner data
+//         self.data.get_value(prop)
+//     }
+
+//     fn set_value(&mut self, prop: &Property<C>, value: PropertyValue) -> Result<(), PropertyError> {
+//         if prop.is_id_property() {
+//             // Prevent changing the ID if it's read-only, or handle it here
+//             return Err(PropertyError::ReadOnly);
+//         }
+//         // Otherwise, delegate the mutation to the inner data
+//         self.data.set_value(prop, value)
+//     }
+// }
 
 // COMPONENT REGISTRY
 // Components are stored in a registry
@@ -122,43 +172,38 @@ impl ComponentData for ExampleData {
 
 // CONFIG
 // This allows us to define all the generic types the model will use in one place
-pub struct ExampleConfig;
+// pub struct ExampleConfig;
 
-impl ModelConfig for ExampleConfig {
-    type Id = ID64;
-    type Data = ExampleData;
-    type Registry = HashMapRegistry<Self::Data>;
+// impl ModelConfig for ExampleConfig {
+//     type Id = ID64;
+//     type Data = ExampleData;
+//     type Registry = HashMapRegistry<Self::Data>;
 
-    // Use '=' to assign the concrete types
-    type UnitCategory = ExampleUnitCategory;
-    type UnitSetting = ExampleUnitSettings;  
+//     // Use '=' to assign the concrete types
+//     type UnitCategory = ExampleUnitCategory;
+//     type UnitSetting = ExampleUnitSettings;  
  
-    // type Display = CommonDisplayText;
-    // type Lang = UnitedStatesLanguage;
-}
+//     // type Display = CommonDisplayText;
+//     // type Lang = UnitedStatesLanguage;
+// }
 
-// MODEL
-// Now you can make the model using the configuration
-pub type ExampleModel = Model<ExampleConfig>;
+// // MODEL
+// // Now you can make the model using the configuration
+// pub type ExampleModel = Model<ExampleConfig>;
 
-// INSTANTIATION
-
-// 4. Instantiation Example
-fn example_main() {
-    let registry = HashMapRegistry::<ExampleData>::default();
+// // INSTANTIATION
+// /// Creates a configured model for use in examples.
+// pub fn create_example_model() -> ExampleModel {
+//     let registry = HashMapRegistry::default();
     
-    // Create settings: File is standard SI, Display uses specific preferences
-    let file_settings = ExampleUnitSettings::default();
-    let mut display_settings = ExampleUnitSettings::default();
+//     let file_settings = ExampleUnitSettings::default();
+//     let mut display_settings = ExampleUnitSettings::default();
     
-    // Customize the display setting: show large lengths in feet
-    display_settings.length = SimpleUnit::Length { 
-        unit: LengthUnit::Foot, 
-        exponent: 1 
-    };
+//     display_settings.length = SimpleUnit::Length { 
+//         unit: LengthUnit::Foot, 
+//         exponent: 1 
+//     };
 
-    let settings = UnitSystem::<ExampleConfig>::new(file_settings, display_settings);
-    let mut model = Model::<ExampleConfig>::new(registry, settings);
-
-     
-}
+//     let settings = UnitSystem::new(file_settings, display_settings);
+//     Model::new(registry, settings)
+// }

@@ -1,7 +1,7 @@
  
-use crate::unit::{CompoundUnit,SimpleUnit, TemperatureUnit, Unit};
-
-
+use super::{
+    CompoundUnit, SimpleUnit, TemperatureUnit, Unit
+};
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum UnitKind {

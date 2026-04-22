@@ -4,6 +4,7 @@ pub mod category;
 pub mod simple;
 pub mod compound;
 pub mod settings;
+pub mod config;
 
 pub use base_unit::*; 
 pub use kind::*;
@@ -11,15 +12,16 @@ pub use category::*;
 pub use simple::*;
 pub use compound::*;
 pub use settings::*;
+pub use config::*;
 
-use crate::model::ModelConfig;
  
-pub struct UnitSystem<Config: ModelConfig> {
+ 
+pub struct UnitSystem<Config: UnitConfig> {
     pub file: Config::UnitSetting,
     pub display: Config::UnitSetting,
 }
 
-impl<Config: ModelConfig> UnitSystem<Config> {
+impl<Config: UnitConfig> UnitSystem<Config> {
     pub fn new(file: Config::UnitSetting, display: Config::UnitSetting) -> Self {
         Self { file, display }
     }

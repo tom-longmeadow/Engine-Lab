@@ -1,5 +1,10 @@
 
-use crate::unit::{MolarUnit, BaseUnit, CurrentUnit, LengthUnit, LuminousIntensityUnit, MassUnit, TimeUnit, Unit};
+ 
+use super::{
+    MolarUnit, BaseUnit, CurrentUnit, LengthUnit, 
+    LuminousIntensityUnit, MassUnit, TimeUnit, Unit
+};
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SimpleUnit {
@@ -11,12 +16,10 @@ pub enum SimpleUnit {
     LuminousIntensity { unit: LuminousIntensityUnit, exponent: i8 },
 }
 
- 
 
 
 impl SimpleUnit {
- 
- 
+
     pub const fn length_si() -> Self {
         Self::Length { unit: LengthUnit::DEFAULT, exponent: 1 }
     }

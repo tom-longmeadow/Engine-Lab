@@ -1,17 +1,19 @@
+use crate::prelude::PropertyConfig;
+
 use super::{ComponentId, ComponentData};
 
-
 #[derive(Debug, PartialEq, Eq)]
-pub enum ModelError<D: ComponentData, I: ComponentId> {
+pub enum ModelError<C: PropertyConfig, D: ComponentData<C>, I: ComponentId> {
     NotFound(I, D::Kind),
     AlreadyExists(I, D::Kind),
     ValidationError(I, D::Kind, String),
     InvalidId(I, D::Kind),
 }
 
-impl<D, I> std::fmt::Display for ModelError<D, I> 
+impl<C, D, I> std::fmt::Display for ModelError<C, D, I> 
 where 
-    D: ComponentData, 
+    C: PropertyConfig,
+    D: ComponentData<C>, 
     I: ComponentId,
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

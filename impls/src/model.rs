@@ -1,6 +1,5 @@
 
 pub mod registry_hashmap;
-pub mod example_model;
-pub mod component;
+pub mod example_model; 
 
   
