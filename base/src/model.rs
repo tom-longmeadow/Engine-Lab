@@ -11,9 +11,9 @@ pub use component::*;
 pub use registry::*;
 
  
-use crate::prelude::UnitSystem;
-use crate::prelude::ModelConfig;
-use crate::prelude::ModelError;
+pub use crate::prelude::UnitSystem;
+pub use crate::prelude::ModelConfig;
+pub use crate::prelude::ModelError;
 
 
 pub struct Model<C> 

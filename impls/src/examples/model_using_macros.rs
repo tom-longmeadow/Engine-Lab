@@ -6,7 +6,7 @@ use crate::model::registry_hashmap::HashMapRegistry;
     This Example shows how to declare the types and trait implementations to make a model 
     using predefined macros.
     A more verbose way that doesn't use macros to create the same types and traits can be found in the file:
-    example_model
+    example_model, where there are explanations of the process
 */
 pub struct ExampleModelConfig;
 
@@ -80,7 +80,8 @@ pub struct PointData { pub x: f64, pub y: f64, pub z: f64 }
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct LineData { pub i: ID64, pub j: ID64 }
 
- 
+// this macro sets up properties for the x, y and z directions and 
+// couples them with the unit and the display label.
 component_data_macro!(
     PointData, ExampleModelConfig, ExampleKind, ExampleKind::Point,
     group: DisplayText::Point,
