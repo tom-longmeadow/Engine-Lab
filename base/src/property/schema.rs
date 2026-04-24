@@ -1,5 +1,5 @@
  
-use crate::prelude::{DisplayText, Propertied, PropertyConfig, PropertyError, PropertyName, PropertyValue, PropertyValueDiscriminants, UnitSettings, UnitSystem};
+use crate::prelude::{Propertied, PropertyConfig, PropertyError, PropertyName, PropertyValue, PropertyValueDiscriminants, UnitSettings, UnitSystem};
 
 
 
@@ -26,48 +26,45 @@ impl<C: PropertyConfig> PropertySchema<C> {
         hash
     }
 
-    
+
     pub fn new(
-        name: impl Into<PropertyName<C>>,
-        kind: PropertyValueDiscriminants,  
+        name: C::Display,
+        kind: PropertyValueDiscriminants,
         unit: Option<C::UnitCategory>,
-        key: u64, 
-    ) -> Self {
-        Self {
-            name: name.into(),
-            kind,
-            key,  
-            unit,
-            read_only: false,
-        }
-    }
-
-    pub fn new_readonly(
-        name: impl Into<PropertyName<C>>,
-        kind: PropertyValueDiscriminants,  
-        unit: Option<C::UnitCategory>,
-        key: u64,  
-    ) -> Self {
-        Self {
-            name: name.into(),
-            kind,
-            key,  
-            unit,
-            read_only: true,
-        }
-    }
-
-    pub fn new_id(
-        name: impl Into<PropertyName<C>>,
         key: u64,
     ) -> Self {
-        Self::new_readonly(name, PropertyValueDiscriminants::ID, None, key)
+        Self { name: PropertyName::new(name), kind, unit, key, read_only: false }
+    }
+
+     pub fn new_readonly(
+        name: C::Display,
+        kind: PropertyValueDiscriminants,
+        unit: Option<C::UnitCategory>,
+        key: u64,
+    ) -> Self {
+        Self { name: PropertyName::new(name), kind, unit, key, read_only: true }
+    }
+
+
+    pub fn new_number(
+        name: C::Display, 
+        unit: C::UnitCategory,
+        key: u64,
+    ) -> Self {
+        Self::new(name, PropertyValueDiscriminants::Number, Some(unit), key)
     }
  
-    pub fn new_id_readonly(
+    pub fn new_id(
+        name: C::Display,
         key: u64,
     ) -> Self {
-        let name = PropertyName::from(DisplayText::ID);
+        Self::new(name, PropertyValueDiscriminants::ID, None, key)
+    }
+
+    pub fn new_id_readonly(
+        name: C::Display,
+        key: u64,
+    ) -> Self {
         Self::new_readonly(name, PropertyValueDiscriminants::ID, None, key)
     }
  

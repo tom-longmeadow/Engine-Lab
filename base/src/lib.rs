@@ -21,7 +21,7 @@ pub mod prelude {
     };
 
     pub use crate::model::{
-        component::*, registry::*,    
+        component::*, registry::*, Model
     };
 
     // #[cfg(feature = "testing")]
@@ -43,7 +43,11 @@ pub mod prelude {
         base_unit_macro,
         temperature_unit_macro,
         component_id_macro,
-        component_id_primitive_macro
+        component_id_primitive_macro,
+        property_key,
+        display_text_macro,
+        component_data_macro,
+        model_config_macro
     };
 }
 

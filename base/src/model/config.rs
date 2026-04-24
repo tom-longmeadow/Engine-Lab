@@ -1,19 +1,23 @@
-use super::{ComponentData, ComponentId, ComponentRegistry};
+use super::{ComponentKind, ComponentRegistry, HasKind};
 
 use crate::{
-    model::ComponentKind, prelude::PropertyConfig
+    prelude::PropertyConfig
 };
 
+
+ 
+
+
 pub trait ModelConfig: PropertyConfig + Sized {
-    type Data: ComponentData<Self>; 
-    
+    type Kind: ComponentKind;
+    type Data: Clone + HasKind<Kind = Self::Kind>;
+
     type Registry: ComponentRegistry<
-        Self, 
-        Data = Self::Data, 
-        Id = <<Self::Data as ComponentData<Self>>::Kind as ComponentKind>::Id 
+        Self,
+        Data = Self::Data,
+        Id = <Self::Kind as ComponentKind>::Id
     >;
 }
-
 
 // pub trait ModelConfig: PropertyConfig + Sized {
 //     type Data: ComponentData<Self>;

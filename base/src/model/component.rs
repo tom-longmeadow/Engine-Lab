@@ -3,8 +3,8 @@
     component_id_macro, 
     component_id_primitive_macro, 
     prelude::{
-        DisplayText, Propertied, PropertyConfig, PropertyNode, PropertyValue,
-    }, property::{PropertyName, PropertySchema}, property_key
+        DisplayLanguage, ModelConfig, Propertied, PropertyConfig, PropertyName, PropertyNode, PropertySchema, PropertyValue
+    }, property_key 
 };
 
  pub trait ComponentId: Copy + Eq + std::hash::Hash + std::fmt::Debug + std::fmt::Display + std::str::FromStr {
@@ -39,65 +39,60 @@ pub struct ComponentKey<K: ComponentKind> {
     pub kind: K,
 }
 
-pub trait ComponentData<C: PropertyConfig>: Clone + Propertied<C> {
-    type Kind: ComponentKind; 
+
+pub trait HasKind {
+    type Kind: ComponentKind;
     fn kind(&self) -> Self::Kind;
+}
+
+pub trait ComponentData<C: PropertyConfig>: Clone + Propertied<C> + HasKind { 
     fn kind_name() -> PropertyName<C>;
 }
 
- 
-pub struct Component<C: PropertyConfig, D: ComponentData<C>> {  
-    pub id: <<D as ComponentData<C>>::Kind as ComponentKind>::Id,
+
+type ID<D> = <<D as HasKind>::Kind as ComponentKind>::Id;
+
+pub struct Component<C: ModelConfig, D: HasKind<Kind = C::Kind>> {
+    pub id: <C::Kind as ComponentKind>::Id,
     pub data: D,
 }
 
-impl<C: PropertyConfig, D: ComponentData<C>> Component<C, D> {
- 
-    pub fn id(&self) -> <<D as ComponentData<C>>::Kind as ComponentKind>::Id {
-        self.id
-    }
-    
-    pub fn data(&self) -> &D { 
-        &self.data 
-    }
-    
-    pub fn kind(&self) -> D::Kind {
-        self.data.kind()
+impl<C: ModelConfig, D: HasKind<Kind = C::Kind>> Component<C, D> {
+
+    pub fn new(id: ID<D>, data: D) -> Self {
+        Self { id, data }
     }
 
-    pub fn kind_name(&self) -> PropertyName<C> {
-        D::kind_name()
+    pub fn id(&self) -> ID<D> {
+        self.id
+    }
+
+    pub fn data(&self) -> &D {
+        &self.data
     }
 
     pub fn key(&self) -> ComponentKey<D::Kind> {
         ComponentKey {
             id: self.id,
-            kind: self.kind(),
+            kind: self.data.kind(),
         }
     }
 }
 
-impl<C: PropertyConfig, D: ComponentData<C>> Component<C, D> { 
-   pub const ID_KEY: u64 = property_key!(C, ID);
+impl<C: ModelConfig, D: ComponentData<C> + HasKind<Kind = C::Kind>> Component<C, D> { 
+    pub const ID_KEY: u64 = property_key!(C, ID);
 }
  
- 
-impl<C: PropertyConfig, D: ComponentData<C>> Propertied<C> for Component<C, D> {
+impl<C: ModelConfig, D: ComponentData<C> + HasKind<Kind = C::Kind>> Propertied<C> for Component<C, D> {
 
     fn get_schema() -> PropertyNode<C> {
-         
-        let kind = D::kind_name(); 
         let id_schema = PropertyNode::Leaf(
-            PropertySchema::new_id_readonly(Self::ID_KEY)
+            PropertySchema::new_id_readonly(C::Display::id_label(), Self::ID_KEY)
         );
-        
-        let mut children = vec![id_schema]; 
-        
-        // 🌟 Push the entire group rather than unpacking it to keep folders intact
-        children.push(D::get_schema()); 
-         
+        let mut children = vec![id_schema];
+        children.push(D::get_schema());
         PropertyNode::Group {
-            name: kind,
+            name: D::kind_name(),
             children,
         }
     }

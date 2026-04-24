@@ -22,8 +22,8 @@ pub struct UnitSystem<Config: UnitConfig> {
 }
 
 impl<Config: UnitConfig> UnitSystem<Config> {
-    pub fn new(file: Config::UnitSetting, display: Config::UnitSetting) -> Self {
-        Self { file, display }
+    pub fn new(file: Config::UnitSetting) -> Self {
+        Self { file, display: file.clone() }
     }
 
     pub fn convert(&self, value: f64, category: Config::UnitCategory, from: &Config::UnitSetting, to: &Config::UnitSetting) -> f64 {

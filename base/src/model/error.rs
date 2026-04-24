@@ -1,35 +1,25 @@
-use crate::prelude::PropertyConfig;
 
-use super::{ComponentId, ComponentData};
+
+use super::{ComponentKind, ModelConfig};
+
+
+type ID<C> = <<C as ModelConfig>::Kind as ComponentKind>::Id;
 
 #[derive(Debug, PartialEq, Eq)]
-pub enum ModelError<C: PropertyConfig, D: ComponentData<C>, I: ComponentId> {
-    NotFound(I, D::Kind),
-    AlreadyExists(I, D::Kind),
-    ValidationError(I, D::Kind, String),
-    InvalidId(I, D::Kind),
+pub enum ModelError<C: ModelConfig> {
+    NotFound(ID<C>, C::Kind),
+    AlreadyExists(ID<C>, C::Kind),
+    ValidationError(ID<C>, C::Kind, String),
+    InvalidId(ID<C>, C::Kind),
 }
 
-impl<C, D, I> std::fmt::Display for ModelError<C, D, I> 
-where 
-    C: PropertyConfig,
-    D: ComponentData<C>, 
-    I: ComponentId,
-{
+impl<C: ModelConfig> std::fmt::Display for ModelError<C> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::NotFound(id, kind) => {
-                write!(f, "{:?} {:?} not found", kind, id)
-            }
-            Self::AlreadyExists(id, kind) => {
-                write!(f, "{:?} {:?} already exists", kind, id)
-            }
-            Self::ValidationError(id, kind, msg) => {
-                write!(f, "Validation error for {:?} {:?}: {}", kind, id, msg)
-            }
-            Self::InvalidId(id, kind) => {
-                write!(f, "Invalid id: {:?} for {:?}", id, kind)
-            }
+            Self::NotFound(id, kind)            => write!(f, "{:?} {:?} not found", kind, id),
+            Self::AlreadyExists(id, kind)       => write!(f, "{:?} {:?} already exists", kind, id),
+            Self::ValidationError(id, kind, msg) => write!(f, "Validation error for {:?} {:?}: {}", kind, id, msg),
+            Self::InvalidId(id, kind)           => write!(f, "Invalid id: {:?} for {:?}", id, kind),
         }
     }
 }

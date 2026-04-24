@@ -1,15 +1,15 @@
-
 use std::collections::HashMap;
-use base::{model::{ComponentData, ComponentKey, ComponentKind, ComponentRegistry}, prelude::PropertyConfig};
+use base::prelude::{
+    ComponentKey, ComponentKind, ComponentRegistry, 
+    HasKind, ModelConfig, 
+};
 
-// 2. Fix the Struct Definition
-pub struct HashMapRegistry<C: PropertyConfig, D: ComponentData<C>> {
-    // The key is derived entirely from the Data's Kind
-    items: HashMap<ComponentKey<D::Kind>, D>,
+pub struct HashMapRegistry<C: ModelConfig> {
+    items: HashMap<ComponentKey<<C::Data as HasKind>::Kind>, C::Data>,
     _config: std::marker::PhantomData<C>,
 }
 
-impl<C: PropertyConfig, D: ComponentData<C>> HashMapRegistry<C, D> {
+impl<C: ModelConfig> HashMapRegistry<C> {
     pub fn new() -> Self {
         Self {
             items: HashMap::new(),
@@ -18,38 +18,37 @@ impl<C: PropertyConfig, D: ComponentData<C>> HashMapRegistry<C, D> {
     }
 }
 
-impl<C: PropertyConfig, D: ComponentData<C>> Default for HashMapRegistry<C, D> {
+impl<C: ModelConfig> Default for HashMapRegistry<C> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-// 3. Fix the Trait Implementation
-impl<C: PropertyConfig, D: ComponentData<C>> ComponentRegistry<C> for HashMapRegistry<C, D> {
-    type Id = <<D as ComponentData<C>>::Kind as ComponentKind>::Id;
-    type Data = D;
+impl<C: ModelConfig> ComponentRegistry<C> for HashMapRegistry<C> {
+    type Id = <C::Kind as ComponentKind>::Id;
+    type Data = C::Data;
 
     fn insert(&mut self, id: Self::Id, data: Self::Data) -> Option<Self::Data> {
         let key = ComponentKey { id, kind: data.kind() };
         self.items.insert(key, data)
     }
 
-    fn remove(&mut self, id: &Self::Id, kind: D::Kind) -> Option<Self::Data> {
+    fn remove(&mut self, id: &Self::Id, kind: C::Kind) -> Option<Self::Data> {
         let key = ComponentKey { id: *id, kind };
         self.items.remove(&key)
     }
 
-    fn get(&self, id: &Self::Id, kind: D::Kind) -> Option<&Self::Data> {
+    fn get(&self, id: &Self::Id, kind: C::Kind) -> Option<&Self::Data> {
         let key = ComponentKey { id: *id, kind };
         self.items.get(&key)
     }
 
-    fn get_mut(&mut self, id: &Self::Id, kind: D::Kind) -> Option<&mut Self::Data> {
+    fn get_mut(&mut self, id: &Self::Id, kind: C::Kind) -> Option<&mut Self::Data> {
         let key = ComponentKey { id: *id, kind };
         self.items.get_mut(&key)
     }
 
-    fn contains(&self, id: &Self::Id, kind: D::Kind) -> bool {
+    fn contains(&self, id: &Self::Id, kind: C::Kind) -> bool {
         let key = ComponentKey { id: *id, kind };
         self.items.contains_key(&key)
     }
@@ -62,20 +61,18 @@ impl<C: PropertyConfig, D: ComponentData<C>> ComponentRegistry<C> for HashMapReg
         self.items.values_mut()
     }
 
-    fn values_by_kind(&self, kind: D::Kind) -> impl Iterator<Item = &Self::Data> + '_ {
+    fn values_by_kind(&self, kind: C::Kind) -> impl Iterator<Item = &Self::Data> + '_ {
         self.items.iter()
             .filter(move |(k, _)| k.kind == kind)
             .map(|(_, v)| v)
     }
 
-    fn values_mut_by_kind(&mut self, kind: D::Kind) -> impl Iterator<Item = &mut Self::Data> + '_ {
+    fn values_mut_by_kind(&mut self, kind: C::Kind) -> impl Iterator<Item = &mut Self::Data> + '_ {
         self.items.iter_mut()
             .filter(move |(k, _)| k.kind == kind)
             .map(|(_, v)| v)
     }
 }
-
-
 
 // /// A registry that uses a single hashmap to store all component kinds.
 // pub struct HashMapRegistry<D> 

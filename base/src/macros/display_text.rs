@@ -1,5 +1,5 @@
 #[macro_export]
-macro_rules! display_text {
+macro_rules! display_text_macro {
     (
         $(#[$meta:meta])*
         pub enum $name:ident {
@@ -24,9 +24,9 @@ macro_rules! display_text {
             /// A master array of strings in the exact order of the enum.
             pub const VARIANTS: &'static [&'static str] = &[
                 // Handle the default variant
-                display_text!(@string $default_variant $(= $default_override)?),
+                display_text_macro!(@string $default_variant $(= $default_override)?),
                 // Handle the rest
-                $( display_text!(@string $variant $(= $override)?) ),*
+                $( display_text_macro!(@string $variant $(= $override)?) ),*
             ];
 
             /// Non-const runtime method for your translation traits
