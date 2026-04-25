@@ -1,4 +1,4 @@
-use crate::prelude::{PropertyConfig, PropertyName, PropertySchema, PropertyValueDiscriminants};
+use crate::prelude::{PropertyConfig, PropertyName, PropertySchema, PropertyValueKind};
 
  
 
@@ -32,7 +32,7 @@ impl<C: PropertyConfig> PropertyNode<C> {
 
     pub fn new(
         name: C::Display,
-        kind: PropertyValueDiscriminants,
+        kind: PropertyValueKind,
         unit: Option<C::UnitCategory>,
         key: u64,
     ) -> Self {
@@ -41,7 +41,7 @@ impl<C: PropertyConfig> PropertyNode<C> {
 
     pub fn new_readonly(
         name: C::Display,
-        kind: PropertyValueDiscriminants,
+        kind: PropertyValueKind,
         unit: Option<C::UnitCategory>,
         key: u64,
     ) -> Self {

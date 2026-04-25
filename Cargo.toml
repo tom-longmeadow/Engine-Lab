@@ -1,11 +1,13 @@
 [workspace]
 members = [
     "base",
-    "impls",
+    "impls", 
+    "render",
 ]
 resolver = "2"
 
 [workspace.dependencies]
-derive_more = { version = "=1.0.0", features = ["from", "into", "display", "as_ref"] }
-strum = { version = "0.26", features = ["derive"] }
-strum_macros = { version = "0.26"}
+#derive_more = { version = "=1.0.0", features = ["from", "into", "display", "as_ref"] }
+#strum = { version = "0.26", features = ["derive"] }
+#strum_macros = { version = "0.26"}
+wgpu = "29.0.1"

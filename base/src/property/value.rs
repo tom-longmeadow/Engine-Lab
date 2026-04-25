@@ -1,8 +1,36 @@
  
-use strum::EnumDiscriminants; 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum PropertyValueKind {
+    ID,
+    Text,
+    Number,
+    Percent,
+    Integer,
+    Unsigned,
+    Boolean,
+}
 
-#[derive(Debug, Clone, PartialEq, EnumDiscriminants)]
-#[strum_discriminants(derive(strum::Display, strum::AsRefStr))]
+impl std::fmt::Display for PropertyValueKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+impl AsRef<str> for PropertyValueKind {
+    fn as_ref(&self) -> &str {
+        match self {
+            Self::ID       => "ID",
+            Self::Text     => "Text",
+            Self::Number   => "Number",
+            Self::Percent  => "Percent",
+            Self::Integer  => "Integer",
+            Self::Unsigned => "Unsigned",
+            Self::Boolean  => "Boolean",
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)] 
 pub enum PropertyValue {
     ID(String), // allows any type of id
     Text(String),
@@ -16,7 +44,7 @@ pub enum PropertyValue {
 impl From<String> for PropertyValue {
     fn from(s: String) -> Self { Self::Text(s) }
 }
-// Enables using &str literals directly
+
 impl From<&str> for PropertyValue {
     fn from(s: &str) -> Self { Self::Text(s.to_string()) }
 }
@@ -32,6 +60,35 @@ impl From<u64> for PropertyValue {
 impl From<bool> for PropertyValue {
     fn from(b: bool) -> Self { Self::Boolean(b) }
 }
+
+impl PropertyValue {
+    pub fn kind(&self) -> PropertyValueKind {
+        match self {
+            Self::ID(_)       => PropertyValueKind::ID,
+            Self::Text(_)     => PropertyValueKind::Text,
+            Self::Number(_)   => PropertyValueKind::Number,
+            Self::Percent(_)  => PropertyValueKind::Percent,
+            Self::Integer(_)  => PropertyValueKind::Integer,
+            Self::Unsigned(_) => PropertyValueKind::Unsigned,
+            Self::Boolean(_)  => PropertyValueKind::Boolean,
+        }
+    }
+}
+
+impl From<&PropertyValue> for PropertyValueKind {
+    fn from(v: &PropertyValue) -> Self {
+        match v {
+            PropertyValue::ID(_)       => PropertyValueKind::ID,
+            PropertyValue::Text(_)     => PropertyValueKind::Text,
+            PropertyValue::Number(_)   => PropertyValueKind::Number,
+            PropertyValue::Percent(_)  => PropertyValueKind::Percent,
+            PropertyValue::Integer(_)  => PropertyValueKind::Integer,
+            PropertyValue::Unsigned(_) => PropertyValueKind::Unsigned,
+            PropertyValue::Boolean(_)  => PropertyValueKind::Boolean,
+        }
+    }
+}
+
 
  
  

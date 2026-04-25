@@ -3,10 +3,19 @@ use crate::prelude::{DisplayLanguage, PropertyConfig};
 
 
 
-#[derive(Debug, Clone, PartialEq, Eq)] 
+#[derive(Debug, PartialEq, Eq)] 
 pub enum PropertyName<C: PropertyConfig> {
     Text(C::Display),
     String(String),
+}
+
+impl<C: PropertyConfig> Clone for PropertyName<C> {
+    fn clone(&self) -> Self {
+        match self {
+            Self::Text(d)   => Self::Text(d.clone()),
+            Self::String(s) => Self::String(s.clone()),
+        }
+    }
 }
 
 
@@ -27,14 +36,15 @@ impl<C: PropertyConfig> PropertyName<C> {
     pub fn new_str(name: impl Into<String>) -> Self {
         Self::String(name.into())
     } 
-}
 
-// // Convert directly from the user's Display type
-// impl<C: PropertyConfig> From<C::Display> for PropertyName<C> {
-//     fn from(d: C::Display) -> Self {
-//         Self::Text(d)
-//     }
-// }
+    pub fn label(&self, lang: C::Lang) -> String {
+        match self {
+            Self::Text(key) => key.translate(lang),
+            Self::String(s) => s.clone(),
+        }
+    }
+}
+ 
 
 impl<C: PropertyConfig> From<&str> for PropertyName<C> {
     fn from(s: &str) -> Self {

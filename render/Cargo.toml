@@ -1,11 +1,15 @@
 [package]
-name = "impls"
+name = "render"
 version = "0.1.0"
 edition = "2024"
 
+
 [dependencies]
+wgpu = { workspace = true }
 base = { path = "../base" } 
 
 [dev-dependencies]
 base = { path = "../base", features = ["testing"] }
+
+ 
 
