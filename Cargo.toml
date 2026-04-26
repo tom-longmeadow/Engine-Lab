@@ -2,12 +2,15 @@
 members = [
     "base",
     "impls", 
-    "render",
+    "app",
 ]
 resolver = "2"
 
 [workspace.dependencies]
-#derive_more = { version = "=1.0.0", features = ["from", "into", "display", "as_ref"] }
-#strum = { version = "0.26", features = ["derive"] }
-#strum_macros = { version = "0.26"}
 wgpu = "29.0.1"
+tracing = "0.1"
+tracing-wasm = "0.2"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+winit = "0.30"
+pollster = "0.3"
+glyphon = { git = "https://github.com/grovesNL/glyphon", branch = "main" }

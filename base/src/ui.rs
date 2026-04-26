@@ -109,76 +109,76 @@ impl<'a, C: PropertyConfig, T: Propertied<C>> PropertyPanel<'a, C, T> {
 
 // // ── Horizontal (many objects, virtualized) ────────────────────────────────────
 
-// /// Trait your data source implements — keeps the sheet decoupled from storage
-// pub trait RowSource<C: PropertyConfig> {
-//     type Row: Propertied<C>;
-//     fn total_rows(&self) -> usize;
-//     fn fetch_rows(&self, range: std::ops::Range<usize>) -> Vec<&Self::Row>;
-// }
+/// Trait your data source implements — keeps the sheet decoupled from storage
+pub trait RowSource<C: PropertyConfig> {
+    type Row: Propertied<C>;
+    fn total_rows(&self) -> usize;
+    fn fetch_rows(&self, range: std::ops::Range<usize>) -> Vec<&Self::Row>;
+}
 
-// /// The visible window into the data
-// pub struct Viewport {
-//     pub row_offset: usize,     // first visible row index
-//     pub col_offset: usize,     // first visible column index  
-//     pub visible_rows: usize,   // how many rows fit on screen
-//     pub visible_cols: usize,   // how many cols fit on screen
-//     pub row_buffer:   usize,   // extra rows to fetch beyond visible (e.g. 50)
-// }
+/// The visible window into the data
+pub struct Viewport {
+    pub row_offset: usize,     // first visible row index
+    pub col_offset: usize,     // first visible column index  
+    pub visible_rows: usize,   // how many rows fit on screen
+    pub visible_cols: usize,   // how many cols fit on screen
+    pub row_buffer:   usize,   // extra rows to fetch beyond visible (e.g. 50)
+}
 
-// impl Viewport {
-//     pub fn fetch_range(&self) -> std::ops::Range<usize> {
-//         let start = self.row_offset.saturating_sub(self.row_buffer);
-//         let end   = self.row_offset + self.visible_rows + self.row_buffer;
-//         start..end
-//     }
-// }
+impl Viewport {
+    pub fn fetch_range(&self) -> std::ops::Range<usize> {
+        let start = self.row_offset.saturating_sub(self.row_buffer);
+        let end   = self.row_offset + self.visible_rows + self.row_buffer;
+        start..end
+    }
+}
 
-// pub struct PropertyGrid<'a, C: PropertyConfig, S: RowSource<C>> {
-//     pub all_columns:     Vec<Column<C>>,   // full schema, all properties
-//     pub visible_columns: Vec<usize>,       // indices into all_columns currently shown
-//     pub viewport:        Viewport,
-//     pub source:          &'a S,
-//     pub system:          &'a UnitSystem<C>,
-//     _c: PhantomData<C>,
-// }
+pub struct PropertyGrid<'a, C: PropertyConfig, S: RowSource<C>> {
+    pub all_columns:     Vec<Column<C>>,   // full schema, all properties
+    pub visible_columns: Vec<usize>,       // indices into all_columns currently shown
+    pub viewport:        Viewport,
+    pub source:          &'a S,
+    pub system:          &'a UnitSystem<C>,
+    _c: PhantomData<C>,
+}
 
-// impl<'a, C: PropertyConfig, S: RowSource<C>> HorizontalSheet<'a, C, S> {
-//     pub fn new(source: &'a S, system: &'a UnitSystem<C>, viewport: Viewport) -> Self
-//     where S::Row: Propertied<C> {
-//         let all_columns = flatten_schema(&S::Row::get_schema());
-//         let visible_columns = (0..all_columns.len()).collect();
-//         Self { all_columns, visible_columns, viewport, source, system, _c: PhantomData }
-//     }
+impl<'a, C: PropertyConfig, S: RowSource<C>> PropertyGrid<'a, C, S> {
+    // pub fn new(source: &'a S, system: &'a UnitSystem<C>, viewport: Viewport) -> Self
+    //     where S::Row: Propertied<C> {
+    // //     let all_columns = flatten_schema(&S::Row::get_schema());
+    // //     let visible_columns = (0..all_columns.len()).collect();
+    // //     Self { all_columns, visible_columns, viewport, source, system, _c: PhantomData }
+    // }
 
-//     /// Column headers for currently visible columns
-//     pub fn headers(&self) -> Vec<String> {
-//         self.visible_columns.iter()
-//             .map(|&i| self.all_columns[i].schema.name.to_string())
-//             .collect()
-//     }
+    /// Column headers for currently visible columns
+    pub fn headers(&self) -> Vec<String> {
+        self.visible_columns.iter()
+            .map(|&i| self.all_columns[i].schema.name.to_string())
+            .collect()
+    }
 
-//     /// Fetches buffered rows and formats the visible columns for each
-//     pub fn cells(&self) -> Vec<Vec<String>> {
-//         let rows = self.source.fetch_rows(self.viewport.fetch_range());
-//         rows.iter().map(|row| {
-//             self.visible_columns.iter().map(|&i| {
-//                 self.all_columns[i].schema.get_formatted_value(*row, self.system)
-//             }).collect()
-//         }).collect()
-//     }
+    /// Fetches buffered rows and formats the visible columns for each
+    pub fn cells(&self) -> Vec<Vec<String>> {
+        let rows = self.source.fetch_rows(self.viewport.fetch_range());
+        rows.iter().map(|row| {
+            self.visible_columns.iter().map(|&i| {
+                self.all_columns[i].schema.get_formatted_value(*row, self.system)
+            }).collect()
+        }).collect()
+    }
 
-//     pub fn scroll_to_row(&mut self, row: usize) {
-//         self.viewport.row_offset = row.min(self.source.total_rows().saturating_sub(1));
-//     }
+    pub fn scroll_to_row(&mut self, row: usize) {
+        self.viewport.row_offset = row.min(self.source.total_rows().saturating_sub(1));
+    }
 
-//     pub fn show_column(&mut self, col_index: usize) {
-//         if !self.visible_columns.contains(&col_index) {
-//             self.visible_columns.push(col_index);
-//             self.visible_columns.sort();
-//         }
-//     }
+    pub fn show_column(&mut self, col_index: usize) {
+        if !self.visible_columns.contains(&col_index) {
+            self.visible_columns.push(col_index);
+            self.visible_columns.sort();
+        }
+    }
 
-//     pub fn hide_column(&mut self, col_index: usize) {
-//         self.visible_columns.retain(|&i| i != col_index);
-//     }
-// }
+    pub fn hide_column(&mut self, col_index: usize) {
+        self.visible_columns.retain(|&i| i != col_index);
+    }
+}
