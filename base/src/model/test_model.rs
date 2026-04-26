@@ -58,6 +58,15 @@ macro_rules! __define_test_mocks {
             type Id = MockId;
         }
 
+        impl std::fmt::Display for MockKind {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                Self::Kind1 => write!(f, "Kind1"),
+                Self::Kind2 => write!(f, "Kind2"),
+            }
+        }
+    }
+
         #[derive(Debug, Clone, PartialEq)]
         pub enum MockData {
             Kind1 { state: f32 }, 

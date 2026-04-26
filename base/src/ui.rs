@@ -9,8 +9,7 @@ use crate::{
 };
 
  
- 
- 
+
 pub struct Column<C: PropertyConfig> {
     pub schema: PropertySchema<C>,
     pub path: Vec<PropertyName<C>>,  // e.g. ["Point", "X"] for display breadcrumbs
@@ -88,13 +87,23 @@ impl<'a, C: PropertyConfig, T: Propertied<C>> PropertyPanel<'a, C, T> {
         }
     }
 
-    pub fn rows(&self, lang: C::Lang) -> impl Iterator<Item = PropertyPanelRow> + '_ {
-        self.columns.iter().map(move |col| PropertyPanelRow {
-            label: col.header(lang),
-            value: col.value(self.object, self.system),
-            unit:  col.unit_label(self.system),
-        })
-    }
+    // pub fn rows(&self, lang: C::Lang) -> impl Iterator<Item = PropertyPanelRow> + '_ {
+    //     self.columns.iter().map(move |col| PropertyPanelRow {
+    //         label: col.header(lang),
+    //         value: col.value(self.object, self.system),
+    //         unit:  col.unit_label(self.system),
+    //     })
+    // }
+
+    // pub fn rows(&self, lang: C::Lang) -> impl Iterator<Item = Result<PanelRow, PropertyError>> + '_ {
+    //     self.columns.iter().map(move |col| {
+    //         Ok(PanelRow {
+    //             label: col.header(lang),
+    //             value: col.schema.try_get_as_str(self.object, self.system)?,
+    //             unit:  col.unit_label(self.system),
+    //         })
+    //     })
+    // }
 }
 
 

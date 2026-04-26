@@ -16,19 +16,19 @@ impl std::fmt::Display for PropertyValueKind {
     }
 }
 
-impl AsRef<str> for PropertyValueKind {
-    fn as_ref(&self) -> &str {
-        match self {
-            Self::ID       => "ID",
-            Self::Text     => "Text",
-            Self::Number   => "Number",
-            Self::Percent  => "Percent",
-            Self::Integer  => "Integer",
-            Self::Unsigned => "Unsigned",
-            Self::Boolean  => "Boolean",
-        }
-    }
-}
+// impl AsRef<str> for PropertyValueKind {
+//     fn as_ref(&self) -> &str {
+//         match self {
+//             Self::ID       => "ID",
+//             Self::Text     => "Text",
+//             Self::Number   => "Number",
+//             Self::Percent  => "Percent",
+//             Self::Integer  => "Integer",
+//             Self::Unsigned => "Unsigned",
+//             Self::Boolean  => "Boolean",
+//         }
+//     }
+// }
 
 #[derive(Debug, Clone, PartialEq)] 
 pub enum PropertyValue {
