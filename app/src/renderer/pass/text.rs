@@ -1,51 +1,28 @@
+ 
+pub mod font;
+pub mod glyphon_state; 
+pub mod measurer;
+
 use glyphon::cosmic_text;
 
 use base::ui::text::{
-    font::{FontStyle, TextFont},
+    font::{TextFont},
     item::TextItem,
     params::{TextParam, TextParams},
-    style::TextStyle,
+    style::{TextAlign, TextStyle},
 };
 
-use crate::renderer::pass::RenderPass;
-
-pub trait TextFontExt {
-    fn attrs(&self) -> glyphon::Attrs<'_>;
-}
-
-impl TextFontExt for TextFont {
-    fn attrs(&self) -> glyphon::Attrs<'_> {
-        let weight = cosmic_text::Weight(self.weight().0);
-        let style = match self.font_style() {
-            FontStyle::Italic => cosmic_text::Style::Italic,
-            FontStyle::Normal => cosmic_text::Style::Normal,
-        };
-
-        glyphon::Attrs::new()
-            .family(cosmic_text::Family::Name(self.family_name()))
-            .weight(weight)
-            .style(style)
+use crate::renderer::pass::{
+    RenderPass, 
+    text::{
+        font::TextFontExt, 
+        glyphon_state::{GlyphonState, GlyphonGroup}
     }
-}
+}; 
 
-struct PreparedGroup {
-    buffer: glyphon::Buffer,
-    left: f32,
-    top: f32,
-    color: [u8; 4],
-}
-
-struct GlyphonState {
-    width: u32,
-    height: u32,
-    font_system: glyphon::FontSystem,
-    swash_cache: glyphon::SwashCache,
-    viewport: glyphon::Viewport,
-    atlas: glyphon::TextAtlas,
-    renderer: glyphon::TextRenderer,
-    groups: Vec<PreparedGroup>, // performance: one buffer per style-group, not per item
-}
-
+ 
+ 
+ 
 pub struct TextRenderPass {
     params: TextParams,
     state: Option<GlyphonState>,
@@ -107,12 +84,22 @@ impl TextRenderPass {
         (lines.join("\n"), left, top)
     }
 
+    fn to_cosmic_align(align: TextAlign) -> cosmic_text::Align {
+        match align {
+            TextAlign::Left => cosmic_text::Align::Left,
+            TextAlign::Center => cosmic_text::Align::Center,
+            TextAlign::Right => cosmic_text::Align::Right,
+            TextAlign::Justified => cosmic_text::Align::Justified,
+            TextAlign::End => cosmic_text::Align::End,
+        }
+    }
+
     fn rebuild_groups(
         &mut self,
         font_system: &mut glyphon::FontSystem,
         width: u32,
         height: u32,
-    ) -> Vec<PreparedGroup> {
+    ) -> Vec<GlyphonGroup> {
         let mut out = Vec::with_capacity(self.params.groups.len());
 
         for group in &self.params.groups {
@@ -134,10 +121,10 @@ impl TextRenderPass {
                 &text,
                 &attrs,
                 glyphon::Shaping::Advanced,
-                Some(cosmic_text::Align::Left),
+                Some(Self::to_cosmic_align(group.style.align)),
             );
 
-            out.push(PreparedGroup {
+            out.push(GlyphonGroup {
                 buffer,
                 left,
                 top,
@@ -148,6 +135,7 @@ impl TextRenderPass {
         out
     }
 }
+
 
 impl RenderPass for TextRenderPass {
     fn prepare(

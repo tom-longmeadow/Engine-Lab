@@ -181,30 +181,7 @@ impl<C: PropertyConfig> PropertySchema<C> {
         Ok(parsed_value)
     }
 
-    // fn format_value(&self, value: &PropertyValue, system: &UnitSystem<C>) -> String {
-    //     let incoming_kind = PropertyValueKind::from(value);
-    //     if incoming_kind != self.kind {
-    //         return "Type Mismatch".to_string(); 
-    //     }
-
-    //     match value {
-    //         PropertyValue::Number(n) => {
-    //             if let Some(cat) = self.unit {
-    //                 let display_kind = system.display.get(cat);
-    //                 let converted = display_kind.from_base(*n);
-    //                 format!("{:.2} {}", converted, system.symbol(cat))
-    //             } else {
-    //                 format!("{:.2}", n)
-    //             }
-    //         }
-    //         PropertyValue::Percent(n)  => format!("{:.1}%", n * 100.0),
-    //         PropertyValue::Integer(i)  => i.to_string(),
-    //         PropertyValue::Unsigned(u) => u.to_string(),
-    //         PropertyValue::Boolean(b)  => b.to_string(),
-    //         PropertyValue::Text(t)     => t.clone(),
-    //         PropertyValue::ID(t)       => t.clone(),
-    //     }
-    // }
+    
 }
 
  

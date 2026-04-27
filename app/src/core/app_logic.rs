@@ -7,5 +7,5 @@ use crate::{
 pub trait AppLogic {
     fn create_scene(&self)  -> Box<dyn Scene>;
     fn create_config(&self) -> RendererConfig;
-    fn title(&self)         -> &str { "Model Lab" }  // optional default
+    fn title(&self)         -> &str;  
 }

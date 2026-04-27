@@ -97,6 +97,14 @@ impl Renderer {
     pub fn surface_config(&self) -> &wgpu::SurfaceConfiguration {
         &self.surface_cfg
     }
+
+    pub fn width(&self) -> u32 {
+        self.surface_cfg.width
+    }
+
+    pub fn height(&self) -> u32 {
+        self.surface_cfg.height
+    }
     
     pub fn render(&mut self) -> Result<(), RendererError> {
         let output = match self.surface.get_current_texture() {

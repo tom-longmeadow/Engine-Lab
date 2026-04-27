@@ -1,49 +1,75 @@
 use crate::ui::text::font::TextFont;
 
  
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum TextAlign {
+    Left,
+    Center,
+    Right,
+    Justified,
+    End,
+}
 
-#[derive(Clone)]
+
+#[derive(Clone, Copy, Debug)]
 pub struct TextStyle {
     pub font_size: f32,
     pub line_height: f32,
     pub font: TextFont,
     pub color: [u8; 4],
+    pub align: TextAlign,
 }
 
 impl TextStyle {
-    pub fn new(font_size: f32, line_height: f32, font: TextFont, color: [u8; 4]) -> Self {
-        Self { font_size, line_height, font, color }
+    pub fn new(
+        font_size: f32,
+        line_height: f32,
+        font: TextFont,
+        color: [u8; 4],
+        align: TextAlign,
+    ) -> Self {
+        Self {
+            font_size,
+            line_height,
+            font,
+            color,
+            align,
+        }
     }
 }
 
 impl Default for TextStyle {
     fn default() -> Self {
-        Self::new(24.0, 32.0, TextFont::Regular, [255, 255, 255, 255])
+        Self::new(24.0, 32.0, TextFont::Regular, [255, 255, 255, 255], TextAlign::Left)
     }
 }
+
 
 #[derive(Clone)]
 pub struct TextStyleFactory {
     pub font: TextFont,
     pub color: [u8; 4],
     pub line_height_ratio: f32,
+    pub align: TextAlign,
 }
 
 impl TextStyleFactory {
     pub fn new(font: TextFont, color: [u8; 4]) -> Self {
-        Self { font, color, line_height_ratio: 1.25 }
-    }
-
-    pub fn ui_defaults(color: [u8; 4]) -> Self {
-        Self::new(TextFont::Regular, color).with_ratio(1.25)
-    }
-
-    pub fn spreadsheet_defaults(color: [u8; 4]) -> Self {
-        Self::new(TextFont::Regular, color).with_ratio(1.20)
+        Self {
+            font,
+            color,
+            line_height_ratio: 1.25,
+            align: TextAlign::Left,
+        }
     }
 
     pub fn with_ratio(mut self, ratio: f32) -> Self {
         self.line_height_ratio = ratio;
+        self
+    }
+
+    pub fn with_align(mut self, align: TextAlign) -> Self {
+        self.align = align;
         self
     }
 
@@ -57,6 +83,7 @@ impl TextStyleFactory {
             self.line_height(font_size),
             self.font.clone(),
             self.color,
+            self.align,
         )
     }
 }

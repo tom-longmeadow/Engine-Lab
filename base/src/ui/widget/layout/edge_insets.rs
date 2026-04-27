@@ -1,0 +1,16 @@
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
+pub struct EdgeInsets {
+    pub left: f32,
+    pub top: f32,
+    pub right: f32,
+    pub bottom: f32,
+}
+
+impl EdgeInsets {
+    pub fn all(v: f32) -> Self {
+        Self { left: v, top: v, right: v, bottom: v }
+    }
+
+    pub fn horizontal(&self) -> f32 { self.left + self.right }
+    pub fn vertical(&self) -> f32 { self.top + self.bottom }
+}
