@@ -1,7 +1,6 @@
 use crate::ui::widget::Widget;
 use std::fmt;
 
-
 pub trait Container {
     fn children(&self) -> &[Box<dyn Widget>];
     fn push(&mut self, child: Box<dyn Widget>);
@@ -9,12 +8,20 @@ pub trait Container {
     fn clear(&mut self);
 }
 
+pub struct WidgetContainer {
+    children: Vec<Box<dyn Widget>>,
+    gap: Option<f32>,
+    dirty: bool,
+}
 
-#[derive(Default)]
-pub struct WidgetContainer { 
-    children: Vec<Box<dyn Widget>>, 
-    gap: f32, 
-    dirty: bool, 
+impl Default for WidgetContainer {
+    fn default() -> Self {
+        Self {
+            children: Vec::new(),
+            gap: None,
+            dirty: true,
+        }
+    }
 }
 
 impl fmt::Debug for WidgetContainer {
@@ -29,19 +36,24 @@ impl fmt::Debug for WidgetContainer {
 
 impl WidgetContainer {
     pub fn new() -> Self {
-        Self {
-            children: Vec::new(),
-            gap: 0.0,
-            dirty: true,
-        }
+        Self::default()
     }
 
-    pub fn gap(&self) -> f32 {
+    pub fn gap(&self) -> Option<f32> {
         self.gap
     }
 
     pub fn set_gap(&mut self, gap: f32) {
-        self.gap = gap;
+        self.gap = Some(gap);
+        self.dirty = true;
+    }
+
+    pub fn clear_gap(&mut self) {
+        self.gap = None;
+    }
+
+    pub fn resolved_gap(&self, fallback: f32) -> f32 {
+        self.gap.unwrap_or(fallback)
     }
 
     pub fn dirty(&self) -> bool {
@@ -52,8 +64,7 @@ impl WidgetContainer {
         self.dirty = dirty;
     }
 
-    
-     pub fn children(&self) -> &[Box<dyn Widget>] {
+    pub fn children(&self) -> &[Box<dyn Widget>] {
         &self.children
     }
 
@@ -71,12 +82,11 @@ impl WidgetContainer {
             self.children.push(child);
             added = true;
         }
-
         if added {
             self.dirty = true;
         }
     }
- 
+
     pub fn remove(&mut self, index: usize) -> Option<Box<dyn Widget>> {
         if index < self.children.len() {
             self.dirty = true;
@@ -93,7 +103,6 @@ impl WidgetContainer {
         }
     }
 
-
     pub(crate) fn for_each_child_mut(
         &mut self,
         mut f: impl FnMut(&mut Box<dyn Widget>),
@@ -103,6 +112,3 @@ impl WidgetContainer {
         }
     }
 }
- 
- 
- 

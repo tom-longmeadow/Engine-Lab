@@ -1,6 +1,3 @@
-
- 
-
 macro_rules! impl_widget_base {
     ($t:ty) => {
         impl $t {
@@ -18,67 +15,70 @@ macro_rules! impl_widget_base {
                 self.base.set_box_model(model);
             }
 
-            pub fn with_rect(
-                mut self,
-                rect: $crate::ui::widget::layout::rect::Rect,
-            ) -> Self {
+            pub fn with_rect(mut self, rect: $crate::ui::widget::layout::rect::Rect) -> Self {
                 self.set_rect(rect);
                 self
             }
 
-            pub fn padding(&self) -> $crate::ui::widget::layout::edge_insets::EdgeInsets {
+            pub fn padding(&self) -> Option<$crate::ui::widget::layout::edge_insets::EdgeInsets> {
                 self.base.box_model().padding()
             }
 
-            pub fn set_padding(
-                &mut self,
-                padding: $crate::ui::widget::layout::edge_insets::EdgeInsets,
-            ) {
+            pub fn set_padding(&mut self, padding: $crate::ui::widget::layout::edge_insets::EdgeInsets) {
                 let mut model = self.base.box_model();
                 model.set_padding(padding);
                 self.base.set_box_model(model);
             }
 
-            pub fn with_padding(
-                mut self,
-                padding: $crate::ui::widget::layout::edge_insets::EdgeInsets,
-            ) -> Self {
+            pub fn clear_padding(&mut self) {
+                let mut model = self.base.box_model();
+                model.clear_padding();
+                self.base.set_box_model(model);
+            }
+
+            pub fn with_padding(mut self, padding: $crate::ui::widget::layout::edge_insets::EdgeInsets) -> Self {
                 self.set_padding(padding);
                 self
             }
 
-            pub fn background(&self) -> [u8; 4] {
+            pub fn background(&self) -> Option<$crate::ui::widget::layout::color::Color> {
                 self.base.box_model().background()
             }
 
-            pub fn set_background(&mut self, color: [u8; 4]) {
+            pub fn set_background(&mut self, color: $crate::ui::widget::layout::color::Color) {
                 let mut model = self.base.box_model();
                 model.set_background(color);
                 self.base.set_box_model(model);
             }
 
-            pub fn with_background(mut self, color: [u8; 4]) -> Self {
+            pub fn clear_background(&mut self) {
+                let mut model = self.base.box_model();
+                model.clear_background();
+                self.base.set_box_model(model);
+            }
+
+            pub fn with_background(mut self, color: $crate::ui::widget::layout::color::Color) -> Self {
                 self.set_background(color);
                 self
             }
 
-            pub fn border(&self) -> $crate::ui::widget::layout::border::BorderStyle {
+            pub fn border(&self) -> Option<$crate::ui::widget::layout::border::BorderStyle> {
                 self.base.box_model().border()
             }
 
-            pub fn set_border(
-                &mut self,
-                border: $crate::ui::widget::layout::border::BorderStyle,
-            ) {
+            pub fn set_border(&mut self, border: $crate::ui::widget::layout::border::BorderStyle) {
                 let mut model = self.base.box_model();
                 model.set_border(border);
                 self.base.set_box_model(model);
             }
 
-            pub fn with_border(
-                mut self,
-                border: $crate::ui::widget::layout::border::BorderStyle,
-            ) -> Self {
+            pub fn clear_border(&mut self) {
+                let mut model = self.base.box_model();
+                model.clear_border();
+                self.base.set_box_model(model);
+            }
+
+            pub fn with_border(mut self, border: $crate::ui::widget::layout::border::BorderStyle) -> Self {
                 self.set_border(border);
                 self
             }
@@ -93,24 +93,32 @@ macro_rules! impl_widget_text {
                 self.text.text()
             }
 
-            pub fn with_text_style(
-                mut self,
-                style: $crate::ui::text::style::TextStyle,
-            ) -> Self {
-                self.text.set_style(style);
-                self
-            }
-
             pub fn set_text(&mut self, text: impl Into<String>) {
                 self.text.set_text(text);
             }
 
-            pub fn text_style(&self) -> $crate::ui::text::style::TextStyle {
+            pub fn style(&self) -> Option<$crate::ui::text::style::TextStyle> {
                 self.text.style()
             }
 
-            pub fn set_text_style(&mut self, style: $crate::ui::text::style::TextStyle) {
+            pub fn set_style(&mut self, style: $crate::ui::text::style::TextStyle) {
                 self.text.set_style(style);
+            }
+
+            pub fn clear_style(&mut self) {
+                self.text.clear_style();
+            }
+
+            pub fn with_style(mut self, style: $crate::ui::text::style::TextStyle) -> Self {
+                self.text.set_style(style);
+                self
+            }
+
+            pub fn resolved_style(
+                &self,
+                fallback: $crate::ui::text::style::TextStyle,
+            ) -> $crate::ui::text::style::TextStyle {
+                self.text.resolved_style(fallback)
             }
         }
     };
@@ -119,6 +127,27 @@ macro_rules! impl_widget_text {
 macro_rules! impl_widget_container {
     ($t:ty) => {
         impl $t {
+            pub fn children(&self) -> &[Box<dyn $crate::ui::widget::Widget>] {
+                self.container.children()
+            }
+
+            pub fn gap(&self) -> Option<f32> {
+                self.container.gap()
+            }
+
+            pub fn set_gap(&mut self, gap: f32) {
+                self.container.set_gap(gap);
+            }
+
+            pub fn clear_gap(&mut self) {
+                self.container.clear_gap();
+            }
+
+            pub fn with_gap(mut self, gap: f32) -> Self {
+                self.container.set_gap(gap);
+                self
+            }
+
             pub fn push(&mut self, child: Box<dyn $crate::ui::widget::Widget>) {
                 self.container.push(child);
             }
@@ -129,23 +158,6 @@ macro_rules! impl_widget_container {
 
             pub fn clear(&mut self) {
                 self.container.clear();
-            }
-
-            pub fn children(&self) -> &[Box<dyn $crate::ui::widget::Widget>] {
-                self.container.children()
-            }
-
-            pub fn gap(&self) -> f32 {
-                self.container.gap()
-            }
-
-            pub fn set_gap(&mut self, gap: f32) {
-                self.container.set_gap(gap);
-            }
-
-            pub fn with_gap(mut self, gap: f32) -> Self {
-                self.container.set_gap(gap);
-                self
             }
 
             pub fn with_child(mut self, child: Box<dyn $crate::ui::widget::Widget>) -> Self {
@@ -163,15 +175,15 @@ macro_rules! impl_widget_container {
         }
 
         impl $crate::ui::widget::container::Container for $t {
-            fn children(&self) -> &[Box<dyn Widget>] {
+            fn children(&self) -> &[Box<dyn $crate::ui::widget::Widget>] {
                 self.container.children()
             }
 
-            fn push(&mut self, child: Box<dyn Widget>) {
+            fn push(&mut self, child: Box<dyn $crate::ui::widget::Widget>) {
                 self.container.push(child);
             }
 
-            fn remove(&mut self, index: usize) -> Option<Box<dyn Widget>> {
+            fn remove(&mut self, index: usize) -> Option<Box<dyn $crate::ui::widget::Widget>> {
                 self.container.remove(index)
             }
 

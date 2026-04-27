@@ -2,12 +2,18 @@ use crate::ui::{
     text::{
         item::TextItem,
         params::TextParam,
-        style::TextStyle,
     },
     widget::{
-        Widget, WidgetBase, WidgetId, r#box::BoxModel, 
-        layout::{rect::Rect, size::Size, text_measurer::TextMeasurer}, 
-        macros::{impl_widget_base, impl_widget_text}, text::WidgetText
+        Widget, WidgetBase,
+        r#box::BoxModel,
+        layout::{
+            layout_params::LayoutParams,
+            rect::Rect,
+            size::Size,
+            text_measurer::TextMeasurer,
+        },
+        macros::{impl_widget_base, impl_widget_text},
+        text::WidgetText,
     },
 };
 
@@ -22,13 +28,18 @@ impl TextField {
     pub fn new(value: impl Into<String>) -> Self {
         Self {
             base: WidgetBase::new(),
-            text: WidgetText::new(value, TextStyle::default()),
+            text: WidgetText::new(value),
             placeholder: String::new(),
         }
-    } 
+    }
 
     pub fn set_placeholder(&mut self, placeholder: impl Into<String>) {
         self.placeholder = placeholder.into();
+    }
+
+    pub fn with_placeholder(mut self, placeholder: impl Into<String>) -> Self {
+        self.placeholder = placeholder.into();
+        self
     }
 
     fn display_text(&self) -> &str {
@@ -44,30 +55,42 @@ impl_widget_base!(TextField);
 impl_widget_text!(TextField);
 
 impl Widget for TextField {
-
-    fn measure(&mut self, available: Size, measurer: &mut dyn TextMeasurer) -> Size {
-        if self.text.text().is_empty() && !self.placeholder.is_empty() {
-            let s = measurer.measure(&self.placeholder, &self.text.style());
-            Size {
-                w: s.w.min(available.w),
-                h: s.h.min(available.h),
-            }
+    fn measure(
+        &mut self,
+        available: Size,
+        params: &LayoutParams,
+        measurer: &mut dyn TextMeasurer,
+    ) -> Size {
+        let style = self.text.resolved_style(params.text);
+        let text = if self.text.text().is_empty() && !self.placeholder.is_empty() {
+            &self.placeholder
         } else {
-            self.text.measure_clamped(available, measurer)
+            self.text.text()
+        };
+
+        let s = measurer.measure(text, &style);
+        Size {
+            w: s.w.min(available.w),
+            h: s.h.min(available.h),
         }
     }
 
-    fn arrange(&mut self, rect: Rect, _measurer: &mut dyn TextMeasurer) {
-        let mut model = self.base.box_model(); // copy
+    fn arrange(
+        &mut self,
+        rect: Rect,
+        _params: &LayoutParams,
+        _measurer: &mut dyn TextMeasurer,
+    ) {
+        let mut model = self.base.box_model();
         model.set_rect(rect);
-        self.base.set_box_model(model); // write back through setter
+        self.base.set_box_model(model);
     }
 
-    
-    fn collect_text(&self, out: &mut Vec<TextParam>) {
+   fn collect_text(&self, out: &mut Vec<TextParam>, params: &LayoutParams) {
         let rect = self.base.box_model().rect();
+        let style = self.text.resolved_style(params.text);
         out.push(TextParam::new(
-            self.text.style(),
+            style,
             vec![TextItem {
                 text: self.display_text().to_string(),
                 x: rect.x,

@@ -1,18 +1,14 @@
+use crate::ui::widget::layout::color::Color;
 
-
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct BorderStyle {
-    pub color: [u8; 4],
+    pub color: Color,
     pub width: f32,
     pub radius: f32,
 }
 
-impl Default for BorderStyle {
-    fn default() -> Self {
-        Self {
-            color: [0, 0, 0, 0],
-            width: 0.0,
-            radius: 0.0,
-        }
+impl BorderStyle {
+    pub fn new(color: Color, width: f32, radius: f32) -> Self {
+        Self { color, width, radius }
     }
 }

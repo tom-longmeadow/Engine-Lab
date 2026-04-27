@@ -1,12 +1,14 @@
 use crate::ui::{
     text::params::TextParam,
     widget::{
-        Widget, WidgetBase, WidgetId, r#box::BoxModel, 
-        container::{WidgetContainer}, 
-        layout::{rect::Rect, size::Size, text_measurer::TextMeasurer}, 
-        macros::{impl_widget_base, impl_widget_container}
+        Widget, WidgetBase,
+        container::WidgetContainer,
+        layout::{layout_params::LayoutParams, rect::Rect, size::Size, text_measurer::TextMeasurer},
+        macros::{impl_widget_base, impl_widget_container},
+        r#box::BoxModel,
     },
 };
+
 #[derive(Debug)]
 pub struct Grid {
     base: WidgetBase,
@@ -37,14 +39,19 @@ impl_widget_base!(Grid);
 impl_widget_container!(Grid);
 
 impl Widget for Grid {
-    fn measure(&mut self, available: Size, measurer: &mut dyn TextMeasurer) -> Size {
+    fn measure(
+        &mut self,
+        available: Size,
+        params: &LayoutParams,
+        measurer: &mut dyn TextMeasurer,
+    ) -> Size {
         let cols = self.columns.max(1);
         let count = self.container.children().len();
         if count == 0 {
             return Size { w: 0.0, h: 0.0 };
         }
 
-        let gap = self.container.gap();
+        let gap = self.container.resolved_gap(params.gap);
         let rows = count.div_ceil(cols);
 
         let total_gap_w = gap * (cols.saturating_sub(1) as f32);
@@ -59,6 +66,7 @@ impl Widget for Grid {
                     w: cell_w,
                     h: available.h,
                 },
+                params,
                 measurer,
             );
             let row = i / cols;
@@ -75,7 +83,12 @@ impl Widget for Grid {
         }
     }
 
-    fn arrange(&mut self, rect: Rect, measurer: &mut dyn TextMeasurer) {
+    fn arrange(
+        &mut self,
+        rect: Rect,
+        params: &LayoutParams,
+        measurer: &mut dyn TextMeasurer,
+    ) {
         let mut model = self.base.box_model();
         model.set_rect(rect);
         self.base.set_box_model(model);
@@ -86,13 +99,12 @@ impl Widget for Grid {
             return;
         }
 
-        let gap = self.container.gap();
+        let gap = self.container.resolved_gap(params.gap);
         let rows = count.div_ceil(cols);
 
         let total_gap_w = gap * (cols.saturating_sub(1) as f32);
         let cell_w = ((rect.w - total_gap_w).max(0.0)) / cols as f32;
 
-        // First pass: measure and compute row heights.
         let mut measured = vec![Size { w: 0.0, h: 0.0 }; count];
         let mut row_heights = vec![0.0f32; rows];
 
@@ -103,6 +115,7 @@ impl Widget for Grid {
                     w: cell_w,
                     h: rect.h,
                 },
+                params,
                 measurer,
             );
             measured[i] = s;
@@ -111,20 +124,13 @@ impl Widget for Grid {
             i += 1;
         });
 
-        // Second pass: arrange into grid cells.
         let mut i = 0usize;
         self.container.for_each_child_mut(|child| {
             let row = i / cols;
             let col = i % cols;
 
             let x = rect.x + col as f32 * (cell_w + gap);
-            let y = rect.y
-                + row_heights
-                    .iter()
-                    .take(row)
-                    .sum::<f32>()
-                + row as f32 * gap;
-
+            let y = rect.y + row_heights.iter().take(row).sum::<f32>() + row as f32 * gap;
             let h = measured[i].h.min(row_heights[row]);
 
             child.arrange(
@@ -134,6 +140,7 @@ impl Widget for Grid {
                     w: cell_w,
                     h,
                 },
+                params,
                 measurer,
             );
 
@@ -141,9 +148,9 @@ impl Widget for Grid {
         });
     }
 
-    fn collect_text(&self, out: &mut Vec<TextParam>) {
+    fn collect_text(&self, out: &mut Vec<TextParam>, params: &LayoutParams) {
         for child in self.container.children() {
-            child.collect_text(out);
+            child.collect_text(out, params);
         }
     }
 

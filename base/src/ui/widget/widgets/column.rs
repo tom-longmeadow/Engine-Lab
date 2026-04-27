@@ -1,14 +1,15 @@
 use crate::ui::{
     text::params::TextParam,
     widget::{
-        Widget, WidgetBase, WidgetId,
+        Widget, WidgetBase,
         container::WidgetContainer,
-        layout::{rect::Rect, size::Size, text_measurer::TextMeasurer},
+        layout::{layout_params::LayoutParams, rect::Rect, size::Size, text_measurer::TextMeasurer},
         macros::{impl_widget_base, impl_widget_container},
         r#box::BoxModel,
     },
 };
-#[derive(Debug)] 
+
+#[derive(Debug)]
 pub struct Column {
     base: WidgetBase,
     container: WidgetContainer,
@@ -23,20 +24,25 @@ impl Column {
     }
 }
 
-impl_widget_base!(Column); 
+impl_widget_base!(Column);
 impl_widget_container!(Column);
 
 impl Widget for Column {
-   fn measure(&mut self, available: Size, measurer: &mut dyn TextMeasurer) -> Size {
+    fn measure(
+        &mut self,
+        available: Size,
+        params: &LayoutParams,
+        measurer: &mut dyn TextMeasurer,
+    ) -> Size {
         let count = self.container.children().len();
-        let gap = self.container.gap();
+        let gap = self.container.resolved_gap(params.gap);
 
         let mut i = 0usize;
         let mut w = 0.0f32;
         let mut h = 0.0f32;
 
         self.container.for_each_child_mut(|child| {
-            let s = child.measure(available, measurer);
+            let s = child.measure(available, params, measurer);
             w = w.max(s.w);
             h += s.h;
 
@@ -52,16 +58,21 @@ impl Widget for Column {
         }
     }
 
-    fn arrange(&mut self, rect: Rect, measurer: &mut dyn TextMeasurer) {
+    fn arrange(
+        &mut self,
+        rect: Rect,
+        params: &LayoutParams,
+        measurer: &mut dyn TextMeasurer,
+    ) {
         let mut model = self.base.box_model();
         model.set_rect(rect);
         self.base.set_box_model(model);
 
-        let gap = self.container.gap();
+        let gap = self.container.resolved_gap(params.gap);
         let mut y = rect.y;
 
         self.container.for_each_child_mut(|child| {
-            let s = child.measure(Size { w: rect.w, h: rect.h }, measurer);
+            let s = child.measure(Size { w: rect.w, h: rect.h }, params, measurer);
 
             child.arrange(
                 Rect {
@@ -70,6 +81,7 @@ impl Widget for Column {
                     w: rect.w,
                     h: s.h.min(rect.h),
                 },
+                params,
                 measurer,
             );
 
@@ -77,9 +89,9 @@ impl Widget for Column {
         });
     }
 
-    fn collect_text(&self, out: &mut Vec<TextParam>) {
+    fn collect_text(&self, out: &mut Vec<TextParam>, params: &LayoutParams) {
         for child in self.container.children() {
-            child.collect_text(out);
+            child.collect_text(out, params);
         }
     }
 

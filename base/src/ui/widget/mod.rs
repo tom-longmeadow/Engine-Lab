@@ -3,7 +3,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use crate::ui::{
     text::params::TextParam, 
     widget::{r#box::BoxModel, layout::{
-        rect::Rect, size::Size, text_measurer::TextMeasurer
+        layout_params::LayoutParams, rect::Rect, size::Size, text_measurer::TextMeasurer
     }}
 };
 
@@ -33,10 +33,10 @@ impl Default for WidgetId {
 }
 
  
-pub trait Widget { 
-    fn measure(&mut self, available: Size, measurer: &mut dyn TextMeasurer) -> Size;
-    fn arrange(&mut self, rect: Rect, measurer: &mut dyn TextMeasurer); 
-    fn collect_text(&self, _out: &mut Vec<TextParam>) {}
+pub trait Widget {
+    fn measure(&mut self, available: Size, params: &LayoutParams, measurer: &mut dyn TextMeasurer) -> Size;
+    fn arrange(&mut self, rect: Rect, params: &LayoutParams, measurer: &mut dyn TextMeasurer);
+    fn collect_text(&self, _out: &mut Vec<TextParam>, _params: &LayoutParams) {}
     fn collect_rects(&self, _out: &mut Vec<BoxModel>) {}
 }
 

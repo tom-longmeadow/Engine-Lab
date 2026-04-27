@@ -1,16 +1,15 @@
 use base::ui::{
     text::{font::TextFont, params::TextParams, style::TextStyleFactory},
     widget::{
-        Widget, WidgetId,
-        layout::{edge_insets::EdgeInsets, rect::Rect, size::Size},
-        widgets::{
-            column::Column,
-            grid::Grid,
-            label::Label,
-            panel::Panel,
-            row::Row,
-            text_field::TextField,
+        Widget,
+        layout::{
+            color::Color,
+            edge_insets::EdgeInsets,
+            layout_params::LayoutParams,
+            rect::Rect,
+            size::Size,
         },
+        widgets::{column::Column, grid::Grid, label::Label, panel::Panel, row::Row, text_field::TextField},
     },
 };
 
@@ -30,105 +29,43 @@ impl TestScene {
         Self::default()
     }
 
-    pub fn build_ui(style: &TextStyleFactory) -> Panel {
-        // Header row
-        let mut header = Row::new()
+    pub fn build_ui(heading_style: base::ui::text::style::TextStyle) -> Panel {
+         // Row 1: app/header info
+        let mut header_row = Row::new()
             .with_gap(20.0)
-            .with_background([40, 44, 52, 255])
-            .with_padding(EdgeInsets::all(10.0));
+            .with_background(Color::rgb(40, 44, 52));
 
-        header.push(Box::new(
-            Label::new("Model Lab")
-                .with_text_style(style.style(32.0)),
-        ));
-        header.push(Box::new(
-            Label::new("Build: Debug")
-                .with_text_style(style.style(32.0)),
-        ));
+        header_row.push(Box::new(Label::new("Model Lab").with_style(heading_style)));
+       
 
-        // Left form column
-        let mut form_col = Column::new().with_gap(8.0);
+        // Row 2: primary editable fields
+        let mut input_row = Row::new();
+        input_row.push(Box::new(Label::new("Name:")));
+        input_row.push(Box::new(TextField::new("Engine Bolt"))); 
 
-        let mut name_row = Row::new().with_gap(8.0);
-        name_row.push(Box::new(
-            Label::new("Name").with_text_style(style.style(14.0)),
-        ));
-        name_row.push(Box::new(
-            TextField::new("Engine Bolt")
-                .with_text_style(style.style(14.0)),
-        ));
-        form_col.push(Box::new(name_row));
+        // Grid: detailed properties (2 columns = label/value)
+        let mut details_grid = Grid::new(2).with_background(Color::rgb(28, 31, 38));
+        details_grid.push(Box::new(Label::new("Mass")));
+        details_grid.push(Box::new(TextField::new("1.42 kg")));
+        details_grid.push(Box::new(Label::new("Tolerance")));
+        details_grid.push(Box::new(TextField::new("±0.05 mm")));
+        details_grid.push(Box::new(Label::new("Batch")));
+        details_grid.push(Box::new(TextField::new("A-104")));
+        details_grid.push(Box::new(Label::new("Process")));
+        details_grid.push(Box::new(TextField::new("CNC")));
+        details_grid.push(Box::new(Label::new("Supplier")));
+        details_grid.push(Box::new(TextField::new("Acme Industrial")));
 
-        let mut size_row = Row::new().with_gap(8.0);
-        size_row.push(Box::new(
-            Label::new("Size").with_text_style(style.style(14.0)),
-        ));
-        size_row.push(Box::new(
-            TextField::new("24").with_text_style(style.style(14.0)),
-        ));
-        size_row.push(Box::new(
-            Label::new("mm").with_text_style(style.style(14.0)),
-        ));
-        form_col.push(Box::new(size_row));
+        // Column containing exactly two rows and one grid
+        let mut root_col = Column::new();
+        root_col.push(Box::new(header_row));
+        root_col.push(Box::new(input_row));
+        root_col.push(Box::new(details_grid));
 
-        let mut material_row = Row::new().with_gap(8.0);
-        material_row.push(Box::new(
-            Label::new("Material").with_text_style(style.style(14.0)),
-        ));
-        material_row.push(Box::new(
-            TextField::new("Steel").with_text_style(style.style(14.0)),
-        ));
-        form_col.push(Box::new(material_row));
-
-        let left_panel = Panel::new()
-            .with_padding(EdgeInsets::all(10.0))
-            .with_background([28, 31, 38, 255])
-            .with_child(Box::new(form_col));
-
-        // Right stats grid (2 columns: key/value)
-        let mut stats_grid = Grid::new(2)
-            .with_gap(6.0)
-            .with_background([28, 31, 38, 255])
-            .with_padding(EdgeInsets::all(10.0));
-
-        stats_grid.push(Box::new(
-            Label::new("Mass").with_text_style(style.style(13.0)),
-        ));
-        stats_grid.push(Box::new(
-            TextField::new("1.42 kg").with_text_style(style.style(13.0)),
-        ));
-        stats_grid.push(Box::new(
-            Label::new("Tolerance").with_text_style(style.style(13.0)),
-        ));
-        stats_grid.push(Box::new(
-            TextField::new("±0.05 mm").with_text_style(style.style(13.0)),
-        ));
-        stats_grid.push(Box::new(
-            Label::new("Batch").with_text_style(style.style(13.0)),
-        ));
-        stats_grid.push(Box::new(
-            TextField::new( "A-104").with_text_style(style.style(13.0)),
-        ));
-
-        let right_panel = Panel::new()
-            .with_padding(EdgeInsets::all(10.0))
-            .with_background([28, 31, 38, 255])
-            .with_child(Box::new(stats_grid));
-
-        // Body row: left + right
-        let mut body = Row::new().with_gap(12.0);
-        body.push(Box::new(left_panel));
-        body.push(Box::new(right_panel));
-
-        // Root column
-        let mut root_col = Column::new().with_gap(12.0);
-        root_col.push(Box::new(header));
-        root_col.push(Box::new(body));
-
-        // Root panel
+        // Top-level panel contains the column
         Panel::new()
-            .with_padding(EdgeInsets::all(12.0))
-            .with_background([20, 22, 26, 255])
+            .with_padding(EdgeInsets::all(16.0))
+            .with_background(Color::rgb(20, 22, 26))
             .with_child(Box::new(root_col))
     }
 }
@@ -138,10 +75,20 @@ impl Scene for TestScene {
 
     fn build_passes(&self, renderer: &mut Renderer) {
         if renderer.pass_count() == 0 {
-            let style = TextStyleFactory::new(TextFont::Regular, [220, 220, 220, 255])
-                .with_ratio(1.20);
+            let style_factory =
+                TextStyleFactory::new(TextFont::Regular, [220, 220, 220, 255]).with_ratio(1.20);
 
-            let mut panel = Self::build_ui(&style);
+            let body_style = style_factory.style(34.0);
+            let heading_style = style_factory.style(62.0);
+
+            // Global defaults (used by almost everything)
+            let params = LayoutParams::default()
+                .with_text(body_style)
+                .with_gap(8.0)
+                .with_control_padding(EdgeInsets::all(6.0))
+                .with_panel_padding(EdgeInsets::all(10.0));
+
+            let mut panel = Self::build_ui(heading_style);
 
             let mut measurer = GlyphonTextMeasurer::new();
             let screen = Size {
@@ -149,7 +96,7 @@ impl Scene for TestScene {
                 h: renderer.height() as f32,
             };
 
-            let measured = panel.measure(screen, &mut measurer);
+            let measured = panel.measure(screen, &params, &mut measurer);
             panel.arrange(
                 Rect {
                     x: 16.0,
@@ -157,102 +104,14 @@ impl Scene for TestScene {
                     w: measured.w,
                     h: measured.h,
                 },
+                &params,
                 &mut measurer,
             );
 
             let mut groups = Vec::new();
-            panel.collect_text(&mut groups);
+            panel.collect_text(&mut groups, &params);
 
             renderer.add_pass(Box::new(TextRenderPass::new(TextParams::new(groups))));
         }
     }
 }
-
-
-// use base::ui::{
-//     text::{font::TextFont, params::TextParams, style::TextStyleFactory}, 
-//     widget::{Widget, WidgetId, layout::{rect::Rect, size::Size}, 
-//     widgets::panel::Panel}
-// };
-
-// use crate::{
-//     engine::{input::InputState, scene::Scene}, 
-//     renderer::{
-//         Renderer, 
-//         pass::text::{TextRenderPass, measurer::GlyphonTextMeasurer}
-// }};
-
-
-
-// #[derive(Default)]
-// pub struct TestScene;
-
-// impl TestScene {
-//     pub fn new() -> Self {
-//         Self::default()
-//     }
-
-//     pub fn build_ui(style: &TextStyleFactory) -> Panel {
-//         // let mut row = Row::new(WidgetId(1)).with_gap(8.0);
-
-//         // row.push(Box::new(Label::new(
-//         //     WidgetId(2),
-//         //     "Size",
-//         //     style.style(14.0),
-//         // )));
-
-//         // row.push(Box::new(TextField::new(
-//         //     WidgetId(3),
-//         //     "24",
-//         //     style.style(14.0),
-//         // )));
-
-//         // row.push(Box::new(Label::new(
-//         //     WidgetId(4),
-//         //     "mm",
-//         //     style.style(14.0),
-//         // )));
-
-//         Panel::new(WidgetId(0))
-//         //     .with_padding(EdgeInsets::all(8.0))
-//         //     .with_child(Box::new(row))
-//     }
-// }
-
-// impl Scene for TestScene {
-//     fn update(&mut self, _input: &InputState) {}
-
-//     fn build_passes(&self, renderer: &mut Renderer) {
-//         if renderer.pass_count() == 0 {
-//             let style = TextStyleFactory::new(TextFont::Regular, [220, 220, 220, 255])
-//                 .with_ratio(1.20);
-
-//             let mut panel = Self::build_ui(&style);
-
-//             // layout
-//             let mut measurer = GlyphonTextMeasurer::new();
-//             let screen = Size {
-//                 w: renderer.width() as f32,
-//                 h: renderer.height() as f32,
-//             };
-//             let measured = panel.measure(screen, &mut measurer);
-//             panel.arrange(
-//                 Rect {
-//                     x: 16.0,
-//                     y: 16.0,
-//                     w: measured.w,
-//                     h: measured.h,
-//                 },
-//                 &mut measurer,
-//             );
-
-//             // collect text
-//             let mut groups = Vec::new();
-//             panel.collect_text(&mut groups);
-
-//             renderer.add_pass(Box::new(TextRenderPass::new(
-//                 TextParams::new(groups),
-//             )));
-//         }
-//     }
-// }
