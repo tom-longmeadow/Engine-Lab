@@ -1,12 +1,6 @@
-use crate::ui::{
-    text::params::TextParam,
-    widget::{
-        Widget, WidgetBase,
-        container::WidgetContainer,
-        layout::{layout_params::LayoutParams, rect::Rect, size::Size, text_measurer::TextMeasurer},
-        macros::{impl_widget_base, impl_widget_container},
-        r#box::BoxModel,
-    },
+use crate::ui::{ 
+    box_model::BoxModel, container::WidgetContainer, layout::{layout_params::LayoutParams, rect::Rect, size::Size, text_measurer::TextMeasurer}, macros::{impl_widget_base, impl_widget_container}, text::params::TextParam, widget::{Widget, WidgetBase}
+    
 };
 
 #[derive(Debug)]

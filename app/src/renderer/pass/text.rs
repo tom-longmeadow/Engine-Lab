@@ -3,15 +3,14 @@ pub mod font;
 pub mod glyphon_state; 
 pub mod measurer;
 
-use glyphon::cosmic_text;
-
 use base::ui::text::{
-    font::{TextFont},
-    item::TextItem,
-    params::{TextParam, TextParams},
-    style::{TextAlign, TextStyle},
+    font::TextFont, 
+    item::TextItem, 
+    params::{TextParam, TextParams}, 
+    style::{TextAlign, TextStyle}
 };
-
+use glyphon::cosmic_text;
+ 
 use crate::renderer::pass::{
     RenderPass, 
     text::{
@@ -19,9 +18,6 @@ use crate::renderer::pass::{
         glyphon_state::{GlyphonState, GlyphonGroup}
     }
 }; 
-
- 
- 
  
 pub struct TextRenderPass {
     params: TextParams,
@@ -38,12 +34,12 @@ impl TextRenderPass {
         style.font_size * 0.62
     }
 
-    fn compose_group_text(group: &TextParam) -> (String, f32, f32) {
-        if group.items.is_empty() {
+    fn compose_group_text(param: &TextParam) -> (String, f32, f32) {
+        if param.items.is_empty() {
             return (String::new(), 0.0, 0.0);
         }
 
-        let mut items: Vec<&TextItem> = group.items.iter().collect();
+        let mut items: Vec<&TextItem> = param.items.iter().collect();
 
         let left = items
             .iter()
@@ -60,8 +56,8 @@ impl TextRenderPass {
                 .then_with(|| a.x.partial_cmp(&b.x).unwrap_or(std::cmp::Ordering::Equal))
         });
 
-        let line_h = group.style.line_height.max(1.0);
-        let char_w = Self::approx_char_width(&group.style).max(1.0);
+        let line_h = param.style.line_height.max(1.0);
+        let char_w = Self::approx_char_width(&param.style).max(1.0);
 
         let mut lines: Vec<String> = Vec::new();
 

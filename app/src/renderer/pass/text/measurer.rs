@@ -1,4 +1,5 @@
-use base::ui::{text::style::TextStyle, widget::layout::{size::Size, text_measurer::TextMeasurer}};
+ 
+use base::ui::{layout::{size::Size, text_measurer::TextMeasurer}, text::{font::TextFont, style::TextStyle}};
 use glyphon::cosmic_text;
 
 use crate::renderer::pass::text::font::TextFontExt;
@@ -11,7 +12,7 @@ pub struct GlyphonTextMeasurer {
 impl GlyphonTextMeasurer {
     pub fn new() -> Self {
         let mut font_system = glyphon::FontSystem::new();
-        for font in base::ui::text::font::TextFont::all() {
+        for font in TextFont::all() {
             font_system.db_mut().load_font_data(font.font_bytes().to_vec());
         }
         Self { font_system }

@@ -1,20 +1,11 @@
 use crate::ui::{
-    text::{
-        item::TextItem,
-        params::TextParam,
-    },
-    widget::{
-        Widget, WidgetBase,
-        r#box::BoxModel,
-        layout::{
+    box_model::BoxModel, layout::{
             layout_params::LayoutParams,
             rect::Rect,
             size::Size,
             text_measurer::TextMeasurer,
-        },
-        macros::{impl_widget_base, impl_widget_text},
-        text::WidgetText,
-    },
+    }, macros::{impl_widget_base, impl_widget_text}, text::{item::TextItem, params::TextParam}, widget::{Widget, WidgetBase}, widget_text::WidgetText 
+     
 };
 
 #[derive(Clone, Debug)]

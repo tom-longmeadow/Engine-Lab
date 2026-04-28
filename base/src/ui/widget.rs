@@ -1,20 +1,15 @@
+
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use crate::ui::{
-    text::params::TextParam, 
-    widget::{r#box::BoxModel, layout::{
+    box_model::BoxModel, 
+    layout::{
         layout_params::LayoutParams, rect::Rect, size::Size, text_measurer::TextMeasurer
-    }}
+    }, text::params::TextParam, 
+
 };
 
-
-pub mod widgets;
-pub mod layout;
-pub mod text;
-pub mod container;
-pub mod r#box;
-pub mod macros;
-
+ 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub struct WidgetId(pub u64);
 

@@ -40,6 +40,8 @@ impl<C: PropertyConfig> PropertySchema<C> {
         Self { name: PropertyName::new(name), kind, unit, key, read_only: false }
     }
 
+    
+
     pub fn new_readonly(name: C::Display, kind: PropertyValueKind, unit: Option<C::UnitCategory>, key: u64) -> Self {
         Self { name: PropertyName::new(name), kind, unit, key, read_only: true }
     }
@@ -48,6 +50,9 @@ impl<C: PropertyConfig> PropertySchema<C> {
         Self::new(name, PropertyValueKind::Number, Some(unit), key)
     }
 
+    pub fn new_text(name: C::Display, key: u64) -> Self {
+        Self::new(name, PropertyValueKind::Text,None, key)
+    } 
     pub fn new_id(name: C::Display, key: u64) -> Self {
         Self::new(name, PropertyValueKind::ID, None, key)
     }
@@ -55,6 +60,20 @@ impl<C: PropertyConfig> PropertySchema<C> {
     pub fn new_id_readonly(name: C::Display, key: u64) -> Self {
         Self::new_readonly(name, PropertyValueKind::ID, None, key)
     }
+
+    pub fn new_str(name: impl Into<String>, kind: PropertyValueKind, unit: Option<C::UnitCategory>, key: u64) -> Self {
+        Self { name: PropertyName::new_str(name), kind, unit, key, read_only: false }
+    }
+
+     pub fn new_number_str(name: impl Into<String>, unit: C::UnitCategory, key: u64) -> Self {
+        Self::new_str(name, PropertyValueKind::Number, Some(unit), key)
+    }
+
+    pub fn new_text_str(name: impl Into<String>, key: u64) -> Self {
+        Self::new_str(name, PropertyValueKind::Text,None, key)
+    } 
+
+
 
     pub fn get_formatted_value(&self, component: &impl Propertied<C>, system: &UnitSystem<C>) -> String {
         match component.get_value(self.key) {

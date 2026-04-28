@@ -1,4 +1,4 @@
-use crate::ui::widget::layout::color::Color;
+use crate::ui::layout::color::Color;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq)]
 pub struct BorderStyle {

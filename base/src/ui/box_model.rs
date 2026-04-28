@@ -1,5 +1,5 @@
 
-use crate::ui::widget::layout::{
+use crate::ui::layout::{
     border::BorderStyle,
     color::Color,
     edge_insets::EdgeInsets,

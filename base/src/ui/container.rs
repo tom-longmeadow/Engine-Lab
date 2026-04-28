@@ -1,5 +1,7 @@
-use crate::ui::widget::Widget;
+ 
 use std::fmt;
+
+use crate::ui::widget::Widget;
 
 pub trait Container {
     fn children(&self) -> &[Box<dyn Widget>];

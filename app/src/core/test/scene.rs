@@ -1,19 +1,12 @@
-use base::ui::{
-    text::{font::TextFont, params::TextParams, style::TextStyleFactory},
-    widget::{
-        Widget,
-        layout::{
-            color::Color,
-            edge_insets::EdgeInsets,
-            layout_params::LayoutParams,
-            rect::Rect,
-            size::Size,
-        },
-        widgets::{column::Column, grid::Grid, label::Label, panel::Panel, row::Row, text_field::TextField},
-    },
-};
-
+use base::{prelude::Locale, ui::{
+    layout::{color::Color, edge_insets::EdgeInsets, layout_params::LayoutParams, rect::Rect, size::Size},
+    text::{font::TextFont, params::TextParams, style::{TextStyle, TextStyleFactory}},
+    widget::Widget,
+    widgets::{column::Column, grid::Grid, label::Label, panel::Panel, property_panel::PropertyPanel, row::Row, text_field::TextField},
+}, unit::{UnitSettings, UnitSystem}};
+use impls::examples::model::{ExampleModelConfig, ExampleUnitCategory, ExampleUnitSettings};
 use crate::{
+    core::test::part::{Part},
     engine::{input::InputState, scene::Scene},
     renderer::{
         pass::text::{measurer::GlyphonTextMeasurer, TextRenderPass},
@@ -29,19 +22,18 @@ impl TestScene {
         Self::default()
     }
 
-    pub fn build_ui(heading_style: base::ui::text::style::TextStyle) -> Panel {
-         // Row 1: app/header info
+    pub fn build_ui(heading_style: TextStyle) -> Panel {
+        // Row 1: app/header info
         let mut header_row = Row::new()
             .with_gap(20.0)
             .with_background(Color::rgb(40, 44, 52));
 
         header_row.push(Box::new(Label::new("Model Lab").with_style(heading_style)));
-       
 
         // Row 2: primary editable fields
         let mut input_row = Row::new();
         input_row.push(Box::new(Label::new("Name:")));
-        input_row.push(Box::new(TextField::new("Engine Bolt"))); 
+        input_row.push(Box::new(TextField::new("Engine Bolt")));
 
         // Grid: detailed properties (2 columns = label/value)
         let mut details_grid = Grid::new(2).with_background(Color::rgb(28, 31, 38));
@@ -56,11 +48,20 @@ impl TestScene {
         details_grid.push(Box::new(Label::new("Supplier")));
         details_grid.push(Box::new(TextField::new("Acme Industrial")));
 
-        // Column containing exactly two rows and one grid
+        // PropertyPanel from mock Part object
+        let part = Part::new();
+        let units = UnitSystem::<ExampleModelConfig>::new(ExampleUnitSettings::default());
+        let property_panel = PropertyPanel::<ExampleModelConfig>::new(
+            &part,
+            &units,
+            Locale::EnUs, // use your actual enum variant if different
+        );
+        // Column containing header, input row, grid, and property panel
         let mut root_col = Column::new();
         root_col.push(Box::new(header_row));
         root_col.push(Box::new(input_row));
         root_col.push(Box::new(details_grid));
+       root_col.push(Box::new(property_panel.into_column()));
 
         // Top-level panel contains the column
         Panel::new()
@@ -81,7 +82,7 @@ impl Scene for TestScene {
             let body_style = style_factory.style(34.0);
             let heading_style = style_factory.style(62.0);
 
-            // Global defaults (used by almost everything)
+            // Global defaults
             let params = LayoutParams::default()
                 .with_text(body_style)
                 .with_gap(8.0)

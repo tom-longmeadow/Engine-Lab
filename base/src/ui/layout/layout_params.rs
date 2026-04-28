@@ -1,10 +1,10 @@
 use crate::ui::{
-    text::style::TextStyle,
-    widget::layout::{
+ 
+    layout::{
         border::BorderStyle,
         color::Color,
         edge_insets::EdgeInsets,
-    },
+    }, text::style::TextStyle,
 };
 
 #[derive(Clone, Copy, Debug)]

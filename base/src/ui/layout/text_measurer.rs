@@ -1,6 +1,5 @@
-use crate::ui::{
-    text::style::TextStyle, 
-    widget::layout::size::Size
+use crate::ui::{ 
+    layout::size::Size, text::style::TextStyle
 };
  
 
